@@ -1,0 +1,24 @@
+@Component
+script Monster extends Component
+
+	property integer damage = 10
+
+	-- @ExecSpace("ClientOnly") -- 주석 처리하여 기본값 시도
+	@EventSender("Self")
+	handler HandleTriggerEnterEvent(TriggerEnterEvent event)
+		local other = event.TriggerBodyEntity
+		log("Trigger Entered by: " .. tostring(other.Name))
+		
+		-- 플레이어인지 확인하는 더 확실한 방법
+		if other.PlayerComponent or other.Name == "Player" then
+		    local stat = other.PlayerStat
+		    if stat then
+		        stat.hp = stat.hp - self.damage
+		        log("Player hit! Damage: " .. self.damage .. ", Remaining HP: " .. stat.hp)
+		    else
+		        log("PlayerStat component not found on: " .. other.Name)
+		    end
+		end
+	end
+
+end

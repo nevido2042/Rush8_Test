@@ -1,0 +1,6 @@
+@Component
+script PlayerInventory extends Component
+
+	property integer meso = 0
+
+end

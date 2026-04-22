@@ -1,0 +1,47 @@
+@Logic
+script SpawnManager extends Logic
+
+	@ExecSpace("Server")
+	method void SpawnMonster()
+		local userId = senderUserId
+		
+		local id = ''
+		
+		local user = _UserService:GetUserEntityByUserId(userId)
+		local map = user.CurrentMap
+		
+		if map:GetChildByName('Monster') then
+			_UIToast:ShowMessage('이미 몬스터가 스폰된 상태입니다!', userId)
+			return
+		end
+		
+		local footholdComp = map.FootholdComponent
+		
+		for i = 1, 30 do
+			local n = _UtilLogic:RandomIntegerRange(1, 2) == 1
+			id = n and _EntryService:GetModelIdByName('뿔버섯') or _EntryService:GetModelIdByName('좀비버섯')
+			
+			local footholds = footholdComp:GetFootholdAll()
+			local foothold = footholds[_UtilLogic:RandomIntegerRange(1, #footholds)]
+		
+			if foothold:IsVertical() then
+				i -= 1
+				continue
+			end
+			
+			local spawnPosition = foothold:GetCenter():ToVector3()
+			local monster = _SpawnService:SpawnByModelId(id, 'Monster', spawnPosition, map)
+		end
+		
+		_UIToast:ShowMessage('몬스터 스폰이 완료 되었습니다.', userId)
+	end
+
+	@ExecSpace("ClientOnly")
+	@EventSender("Service", "InputService")
+	handler HandleKeyDownEvent(KeyDownEvent event)
+		if event.key == KeyboardKey.F1 then
+			self:SpawnMonster()
+		end
+	end
+
+end

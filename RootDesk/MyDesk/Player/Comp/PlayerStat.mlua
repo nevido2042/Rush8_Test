@@ -1,0 +1,16 @@
+@Component
+script PlayerStat extends Component
+
+	property integer level = 1
+
+	property integer exp = 1
+
+	property integer maxExp = 1
+
+	property integer hp = 100
+
+	property integer maxHp = 100
+
+	property integer attackDamage = 0
+
+end

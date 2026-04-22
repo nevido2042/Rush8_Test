@@ -1,0 +1,23 @@
+{
+  "Id": "",
+  "GameId": "",
+  "EntryKey": "sprite://228aed2577c34bf3882922133b0e9783",
+  "ContentType": "x-mod/sprite",
+  "Content": "",
+  "Usage": 0,
+  "UsePublish": 1,
+  "UseService": 0,
+  "CoreVersion": "1.25.0.0",
+  "StudioVersion": "0.1.0.0",
+  "DynamicLoading": 0,
+  "ContentProto": {
+    "Use": "Json",
+    "Json": {
+      "upload_keyname": "6b/84/6b8448b72f4349269be64426cf657dbb/sprite/228aed2577c34bf3882922133b0e9783/638936801166168761",
+      "upload_hash": "50F6F63C814AEE3686A184FFDF8234A6DF2581AE70AFAEFE778C8C9FC2EEA3A7",
+      "name": "죽은 자의 부적",
+      "resource_guid": "228aed2577c34bf3882922133b0e9783",
+      "resource_version": "68ca38f43f49646b76658d2c"
+    }
+  }
+}

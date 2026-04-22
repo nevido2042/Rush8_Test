@@ -1,0 +1,23 @@
+{
+  "Id": "",
+  "GameId": "",
+  "EntryKey": "sprite://87331f7901444319ad71947d99077e90",
+  "ContentType": "x-mod/sprite",
+  "Content": "",
+  "Usage": 0,
+  "UsePublish": 1,
+  "UseService": 0,
+  "CoreVersion": "1.25.0.0",
+  "StudioVersion": "0.1.0.0",
+  "DynamicLoading": 0,
+  "ContentProto": {
+    "Use": "Json",
+    "Json": {
+      "upload_keyname": "6b/84/6b8448b72f4349269be64426cf657dbb/sprite/87331f7901444319ad71947d99077e90/638936801165847237",
+      "upload_hash": "16C8DBCC69B44DD30A3D8467347B809C37AE8B9B84054F9A2526063E236DA01C",
+      "name": "뿔버섯의 갓",
+      "resource_guid": "87331f7901444319ad71947d99077e90",
+      "resource_version": "68ca38f4a86b09c1f25f0e4e"
+    }
+  }
+}
