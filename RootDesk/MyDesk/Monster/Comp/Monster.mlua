@@ -3,7 +3,6 @@ script Monster extends Component
 
 	property integer damage = 10
 
-	-- @ExecSpace("ClientOnly") -- 주석 처리하여 기본값 시도
 	@EventSender("Self")
 	handler HandleTriggerEnterEvent(TriggerEnterEvent event)
 		local other = event.TriggerBodyEntity
