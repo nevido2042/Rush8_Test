@@ -14,7 +14,7 @@ script Monster extends Component
 		local now = _UtilLogic.ElapsedSeconds
 		if now - self.lastHitTime < 0.5 then return end
 		self.lastHitTime = now
-		
+
 		local selfPos = self.Entity.TransformComponent.WorldPosition
 		local otherPos = other.TransformComponent.WorldPosition
 		local directionX = (otherPos.x < selfPos.x) and -1 or 1
@@ -28,23 +28,10 @@ script Monster extends Component
 				stat.hp = stat.hp - self.damage
 			end
 			
-			-- 조작 차단 (경직): PlayerControllerComponent 자체를 비활성화합니다.
-			local controller = other.PlayerControllerComponent
-			if controller then
-				controller.Enable = false
-				
-				-- 0.4초 후에 다시 컴포넌트를 활성화하여 조작 가능하게 합니다.
-				_TimerService:SetTimerOnce(function()
-					if isvalid(controller) then
-						controller.Enable = true
-					end
-				end, 0.4)
-			end
-			
-			-- 넉백 물리 적용
-			local rb = other.RigidbodyComponent
-			if rb then
-				rb.MoveVelocity = Vector2(directionX * 6.0, 4.0)
+			-- 플레이어의 Knockback 컴포넌트를 호출하여 넉백과 경직을 적용합니다.
+			local knockbackComp = other.Knockback
+			if knockbackComp then
+				knockbackComp:ApplyKnockback(directionX)
 			end
 		end, 0.02)
 	end

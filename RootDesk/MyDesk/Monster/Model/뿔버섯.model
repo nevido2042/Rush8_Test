@@ -287,8 +287,8 @@
           },
           "Value": {
             "$type": "MOD.Core.MODVector2, MOD.Core",
-            "x": 1.0,
-            "y": 1.0
+            "x": 0.56,
+            "y": 0.52
           }
         },
         {
@@ -303,6 +303,37 @@
         {
           "TargetType": "MOD.Core.MODEntity",
           "Name": "Visible",
+          "ValueType": {
+            "$type": "MODNativeType",
+            "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+          },
+          "Value": true
+        },
+        {
+          "TargetType": "MOD.Core.TriggerComponent",
+          "Name": "ColliderOffset",
+          "ValueType": {
+            "$type": "MODNativeType",
+            "type": "MOD.Core.MODVector2, MOD.Core, Version=26.3.0.0, Culture=neutral, PublicKeyToken=null"
+          },
+          "Value": {
+            "$type": "MOD.Core.MODVector2, MOD.Core",
+            "x": 0.00999999,
+            "y": 0.26
+          }
+        },
+        {
+          "TargetType": "MOD.Core.TriggerComponent",
+          "Name": "IsLegacy",
+          "ValueType": {
+            "$type": "MODNativeType",
+            "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+          },
+          "Value": false
+        },
+        {
+          "TargetType": "MOD.Core.TriggerComponent",
+          "Name": "Enable",
           "ValueType": {
             "$type": "MODNativeType",
             "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"

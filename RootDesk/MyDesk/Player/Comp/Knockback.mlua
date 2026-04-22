@@ -1,0 +1,45 @@
+@Component
+script Knockback extends Component
+
+	property number forceX = 3.0
+
+	property number forceY = 3.0
+
+	property number stunDuration = 0.4
+
+	method void ApplyKnockback(number directionX)
+		local target = self.Entity
+		if not isvalid(target) then return end
+		
+		local controller = target.PlayerControllerComponent
+		if controller then
+			controller.Enable = false
+			
+			-- InternalError 방지를 위해 컴포넌트 대신 대상 엔티티(target)의 유효성을 검사합니다.
+			_TimerService:SetTimerOnce(function()
+				if isvalid(target) then
+					local innerController = target.PlayerControllerComponent
+					if innerController then
+						innerController.Enable = true
+					end
+				end
+			end, self.stunDuration)
+		end
+		
+		local rb = target.RigidbodyComponent
+		if rb then
+			-- 기존 수직 속도를 0으로 초기화하여 중력의 영향을 상쇄하고, 새로운 넉백 속도를 적용합니다.
+			-- SetForce를 사용하여 넉백을 적용하기 전에, 기존 수직 속도를 초기화하여 일관된 넉백 높이를 보장합니다.
+			rb.MoveVelocity = Vector2(rb.MoveVelocity.x, 0)
+			local force = Vector2(directionX * self.forceX, self.forceY)
+			rb:SetForce(force)
+		end
+
+		-- 플레이어 스탯 컴포넌트를 찾아 무적 시간을 부여합니다.
+		local playerStat = target.PlayerStat
+		if playerStat then
+			playerStat:SetInvincible()
+		end
+	end
+
+end
