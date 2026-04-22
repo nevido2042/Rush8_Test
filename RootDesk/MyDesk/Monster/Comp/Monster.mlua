@@ -3,21 +3,50 @@ script Monster extends Component
 
 	property integer damage = 10
 
+	property number lastHitTime = 0
+
+	@ExecSpace("ClientOnly")
 	@EventSender("Self")
 	handler HandleTriggerEnterEvent(TriggerEnterEvent event)
 		local other = event.TriggerBodyEntity
-		log("Trigger Entered by: " .. tostring(other.Name))
+		if other == nil or other ~= _UserService.LocalPlayer then return end
 		
-		-- 플레이어인지 확인하는 더 확실한 방법
-		if other.PlayerComponent or other.Name == "Player" then
-		    local stat = other.PlayerStat
-		    if stat then
-		        stat.hp = stat.hp - self.damage
-		        log("Player hit! Damage: " .. self.damage .. ", Remaining HP: " .. stat.hp)
-		    else
-		        log("PlayerStat component not found on: " .. other.Name)
-		    end
-		end
+		local now = _UtilLogic.ElapsedSeconds
+		if now - self.lastHitTime < 0.5 then return end
+		self.lastHitTime = now
+		
+		local selfPos = self.Entity.TransformComponent.WorldPosition
+		local otherPos = other.TransformComponent.WorldPosition
+		local directionX = (otherPos.x < selfPos.x) and -1 or 1
+		
+		_TimerService:SetTimerOnce(function()
+			if not isvalid(other) then return end
+			
+			-- 데미지 처리
+			local stat = other.PlayerStat
+			if stat then
+				stat.hp = stat.hp - self.damage
+			end
+			
+			-- 조작 차단 (경직): PlayerControllerComponent 자체를 비활성화합니다.
+			local controller = other.PlayerControllerComponent
+			if controller then
+				controller.Enable = false
+				
+				-- 0.4초 후에 다시 컴포넌트를 활성화하여 조작 가능하게 합니다.
+				_TimerService:SetTimerOnce(function()
+					if isvalid(controller) then
+						controller.Enable = true
+					end
+				end, 0.4)
+			end
+			
+			-- 넉백 물리 적용
+			local rb = other.RigidbodyComponent
+			if rb then
+				rb.MoveVelocity = Vector2(directionX * 6.0, 4.0)
+			end
+		end, 0.02)
 	end
 
 end
