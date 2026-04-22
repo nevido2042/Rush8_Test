@@ -1,9 +1,9 @@
 @Component
 script Knockback extends Component
 
-	property number forceX = 3.0
+	property number forceX = 1.5
 
-	property number forceY = 3.0
+	property number forceY = 1.5
 
 	property number stunDuration = 0.4
 

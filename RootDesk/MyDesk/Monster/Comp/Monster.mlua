@@ -1,39 +1,4 @@
 @Component
 script Monster extends Component
 
-	property integer damage = 10
-
-	property number lastHitTime = 0
-
-	@ExecSpace("ClientOnly")
-	@EventSender("Self")
-	handler HandleTriggerEnterEvent(TriggerEnterEvent event)
-		local other = event.TriggerBodyEntity
-		if other == nil or other ~= _UserService.LocalPlayer then return end
-		
-		local now = _UtilLogic.ElapsedSeconds
-		if now - self.lastHitTime < 0.5 then return end
-		self.lastHitTime = now
-
-		local selfPos = self.Entity.TransformComponent.WorldPosition
-		local otherPos = other.TransformComponent.WorldPosition
-		local directionX = (otherPos.x < selfPos.x) and -1 or 1
-		
-		_TimerService:SetTimerOnce(function()
-			if not isvalid(other) then return end
-			
-			-- 데미지 처리
-			local stat = other.PlayerStat
-			if stat then
-				stat.hp = stat.hp - self.damage
-			end
-			
-			-- 플레이어의 Knockback 컴포넌트를 호출하여 넉백과 경직을 적용합니다.
-			local knockbackComp = other.Knockback
-			if knockbackComp then
-				knockbackComp:ApplyKnockback(directionX)
-			end
-		end, 0.02)
-	end
-
 end
