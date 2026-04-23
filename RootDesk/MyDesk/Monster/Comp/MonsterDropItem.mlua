@@ -1,0 +1,42 @@
+@Component
+script MonsterDropItem extends Component
+
+	property string DropItemModelId = ""
+
+	property number DropChance = 1.0
+
+	property integer DropAmount = 1
+
+	@ExecSpace("ServerOnly")
+	method void DropItem()
+		if self.DropItemModelId == "" then
+			return
+		end
+		
+		-- 확률 계산
+		local rand = math.random()
+		if rand <= self.DropChance then
+			local transform = self.Entity.TransformComponent
+			if not transform then return end
+			
+			local spawnPos = transform.Position
+			
+			for i = 1, self.DropAmount do
+				-- 몬스터의 현재 위치에 아이템 소환
+				local dropItem = _SpawnService:SpawnByModelId(self.DropItemModelId, "DropItem", spawnPos, self.Entity.Parent)
+				
+				-- 리지드바디 컴포넌트가 있다면 위로 솟아오르는 힘(Force) 적용
+				if isvalid(dropItem) and dropItem.RigidbodyComponent then
+					dropItem.RigidbodyComponent:SetForce(Vector2(0, 5))
+				end
+			end
+		end
+	end
+
+	@ExecSpace("ServerOnly")
+	@EventSender("Self")
+	handler HandleDeadEvent(DeadEvent event)
+		self:DropItem()
+	end
+
+end

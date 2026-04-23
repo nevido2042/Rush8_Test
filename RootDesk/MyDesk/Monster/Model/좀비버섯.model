@@ -28,7 +28,8 @@
         "MOD.Core.TriggerComponent",
         "script.Monster",
         "script.MonsterAttack",
-        "script.MonsterHit"
+        "script.MonsterHit",
+        "script.MonsterDropItem"
       ],
       "Properties": [],
       "Values": [

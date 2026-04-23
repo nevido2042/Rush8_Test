@@ -28,7 +28,8 @@
         "MOD.Core.TriggerComponent",
         "script.Monster",
         "script.MonsterAttack",
-        "script.MonsterHit"
+        "script.MonsterHit",
+        "script.MonsterDropItem"
       ],
       "Properties": [],
       "Values": [
@@ -406,6 +407,15 @@
             "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
           },
           "Value": true
+        },
+        {
+          "TargetType": "script.MonsterDropItem",
+          "Name": "DropItemModelId",
+          "ValueType": {
+            "$type": "MODNativeType",
+            "type": "System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+          },
+          "Value": "model://1fb9682a-e69e-41dc-985d-c6c9eef7efc2"
         }
       ],
       "EventLinks": [],
