@@ -1,6 +1,10 @@
 @Component
 script PlayerAttack extends AttackComponent
 
+	property boolean IsGatheringTargets = false
+	property Entity ClosestTarget = nil
+	property any HitTargets = nil
+
 	@ExecSpace("ServerOnly")
 	method void NormalAttack()
 		
@@ -14,7 +18,35 @@ script PlayerAttack extends AttackComponent
 		end
 		local attackOffset = Vector2(1 * dirX, 0.5) -- 앞쪽으로 1, 위쪽으로 0.5 이동
 		
+		-- 1. 대상을 찾기 위해 임시로 타겟 수집 모드 활성화 후 Attack 호출
+		self.HitTargets = {}
+		self.IsGatheringTargets = true
 		self:Attack(attackSize, attackOffset, nil)
+		self.IsGatheringTargets = false
+		
+		-- 2. 수집된 몬스터 중 가장 가까운 몬스터 찾기
+		local closestTarget = nil
+		local minDistance = math.huge
+		local mypos = Vector2(self.Entity.TransformComponent.Position.x, self.Entity.TransformComponent.Position.y)
+		
+		for _, target in ipairs(self.HitTargets) do
+			if isvalid(target) and target.TransformComponent then
+				local targetPos = Vector2(target.TransformComponent.WorldPosition.x, target.TransformComponent.WorldPosition.y)
+				local dist = Vector2.Distance(mypos, targetPos)
+				if dist < minDistance then
+					minDistance = dist
+					closestTarget = target
+				end
+			end
+		end
+		self.HitTargets = nil -- 메모리 해제
+		
+		-- 3. 가장 가까운 대상이 존재하면 해당 대상만 실제 타격
+		if isvalid(closestTarget) then
+			self.ClosestTarget = closestTarget
+			self:Attack(attackSize, attackOffset, nil)
+			self.ClosestTarget = nil
+		end
 		
 		-- [디버그용] 공격 범위를 화면에 빨간색 박스로 그립니다. (0.5초 지속)
 		self:DrawAttackBox(attackSize, attackOffset)
@@ -50,6 +82,25 @@ script PlayerAttack extends AttackComponent
 	method integer CalcDamage(Entity attacker, Entity defender, string attackInfo)
 		-- __base를 사용하면 부모 컴포넌트(AttackComponent)의 원래 로직을 그대로 호출할 수 있습니다.
 		return __base:CalcDamage(attacker,defender,attackInfo)
+	end
+
+	method boolean IsAttackTarget(Entity defender, string attackInfo)
+		-- 타겟 수집 모드일 때는 데미지를 입히지 않고 리스트에 담기만 함
+		if self.IsGatheringTargets then
+			if __base:IsAttackTarget(defender, attackInfo) then
+				table.insert(self.HitTargets, defender)
+			end
+			return false
+		end
+		
+		-- 실제 타격 모드일 때는 가장 가까운 타겟 하나만 공격하도록 필터링
+		if isvalid(self.ClosestTarget) then
+			if defender ~= self.ClosestTarget then
+				return false
+			end
+		end
+		
+		return __base:IsAttackTarget(defender, attackInfo)
 	end
 
 	@ExecSpace("ServerOnly")
