@@ -20,7 +20,8 @@
       "Components": [
         "script.Knockback",
         "script.PlayerAttack",
-        "MOD.Core.PolygonGUIRendererComponent"
+        "MOD.Core.PolygonGUIRendererComponent",
+        "MOD.Core.PolygonRendererComponent"
       ],
       "Properties": [],
       "Values": [
