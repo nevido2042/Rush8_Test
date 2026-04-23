@@ -91,17 +91,7 @@ script PlayerStat extends Component
 
 	@ExecSpace("Client")
 	method void ShowLevelUpToast()
-		local toastGroup = _EntityService:GetEntityByPath("/ui/ToastGroup")
-		if isvalid(toastGroup) then
-			local toastMsg = toastGroup:GetChildByName("Toast_message")
-			if isvalid(toastMsg) then
-				toastMsg.TextComponent.Text = "레벨업!"
-				toastGroup.Enable = true
-				
-				-- 2초 뒤에 팝업 다시 숨기기
-				_TimerService:SetTimerOnce(function() if isvalid(toastGroup) then toastGroup.Enable = false end end, 2.0)
-			end
-		end
+		_UIToast:ShowMessage("레벨업!")
 	end
 
 	@ExecSpace("ClientOnly")
