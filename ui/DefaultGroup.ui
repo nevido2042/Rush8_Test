@@ -1962,7 +1962,7 @@
         }
       },
       {
-        "id": "5f1d4b3e-30c5-4c5c-99b6-a00e596997bc",
+        "id": "cf334feb-7613-4d88-968d-a86c9b63a9f3",
         "path": "/ui/DefaultGroup/Inventory",
         "componentNames": "MOD.Core.UITransformComponent,MOD.Core.SpriteGUIRendererComponent,script.UIInventory",
         "jsonString": {
@@ -1997,30 +1997,35 @@
               },
               "MobileOnly": false,
               "OffsetMax": {
-                "x": 50.0,
-                "y": 50.0
+                "x": 358.5,
+                "y": 510.5
               },
               "OffsetMin": {
-                "x": -50.0,
-                "y": -50.0
+                "x": -358.5,
+                "y": -520.5
               },
               "Pivot": {
                 "x": 0.5,
                 "y": 0.5
               },
               "RectSize": {
-                "x": 100.0,
-                "y": 100.0
+                "x": 717.0,
+                "y": 1031.0
               },
               "UIMode": 1,
+              "UIScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              },
               "UIVersion": 2,
               "anchoredPosition": {
                 "x": 0.0,
-                "y": 0.0
+                "y": -5.0
               },
               "Position": {
                 "x": 0.0,
-                "y": 0.0,
+                "y": -5.0,
                 "z": 0.0
               },
               "QuaternionRotation": {
@@ -2028,6 +2033,11 @@
                 "y": 0.0,
                 "z": 0.0,
                 "w": 1.0
+              },
+              "Scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
               },
               "Enable": true
             },
@@ -2097,7 +2107,7 @@
         }
       },
       {
-        "id": "8d5a07cc-e7b9-4f8c-93a4-8cecf239d58b",
+        "id": "871cb2a8-7bea-4e70-b76e-21626e538fb3",
         "path": "/ui/DefaultGroup/Inventory/InventoryPanel",
         "componentNames": "MOD.Core.UITransformComponent,MOD.Core.SpriteGUIRendererComponent",
         "jsonString": {
@@ -2237,7 +2247,7 @@
         }
       },
       {
-        "id": "92413c97-ba50-433f-affc-797dff2f2668",
+        "id": "0e0a69d0-31b1-4653-9a65-66203a0b0f04",
         "path": "/ui/DefaultGroup/Inventory/InventoryPanel/Title",
         "componentNames": "MOD.Core.UITransformComponent,MOD.Core.SpriteGUIRendererComponent,MOD.Core.TextComponent",
         "jsonString": {
@@ -2424,7 +2434,7 @@
         }
       },
       {
-        "id": "1c0a9f59-2702-47c7-905e-e73ebe7ec11c",
+        "id": "955ff2aa-1469-4799-9d8e-e5c90f5b88dc",
         "path": "/ui/DefaultGroup/Inventory/InventoryPanel/CloseButton",
         "componentNames": "MOD.Core.UITransformComponent,MOD.Core.SpriteGUIRendererComponent,MOD.Core.ButtonComponent",
         "jsonString": {
@@ -2611,7 +2621,7 @@
         }
       },
       {
-        "id": "c406b32f-7e4e-490e-bd09-cb1e8fbc0925",
+        "id": "ebfb3541-f927-4a9a-a681-95782722016a",
         "path": "/ui/DefaultGroup/Inventory/InventoryPanel/CoinPanel",
         "componentNames": "MOD.Core.UITransformComponent,MOD.Core.SpriteGUIRendererComponent",
         "jsonString": {
@@ -2751,7 +2761,7 @@
         }
       },
       {
-        "id": "8afb2eea-892c-46e6-9427-3e511ebd2f7c",
+        "id": "8742ecb8-2593-41c9-8110-f5233016e4a4",
         "path": "/ui/DefaultGroup/Inventory/InventoryPanel/CoinPanel/coin_count",
         "componentNames": "MOD.Core.UITransformComponent,MOD.Core.SpriteGUIRendererComponent,MOD.Core.TextComponent",
         "jsonString": {
@@ -2937,7 +2947,7 @@
         }
       },
       {
-        "id": "ba8bfd97-65eb-44bc-9c68-6affffa2561c",
+        "id": "ee09b320-ba99-4dac-aa79-b67489923f63",
         "path": "/ui/DefaultGroup/Inventory/InventoryPanel/CoinPanel/coin_icon",
         "componentNames": "MOD.Core.UITransformComponent,MOD.Core.SpriteGUIRendererComponent",
         "jsonString": {
@@ -3077,7 +3087,7 @@
         }
       },
       {
-        "id": "2534a16b-1667-4571-96a4-1d303533ae2a",
+        "id": "2b428e8c-97f0-4e20-ad73-f2d4d09ab78f",
         "path": "/ui/DefaultGroup/Inventory/InventoryPanel/Inventory_ScrollView",
         "componentNames": "MOD.Core.UITransformComponent,MOD.Core.SpriteGUIRendererComponent,MOD.Core.ScrollLayoutGroupComponent",
         "jsonString": {
@@ -3266,7 +3276,7 @@
         }
       },
       {
-        "id": "2c62227a-7dda-4157-a691-d148fdd05c2e",
+        "id": "cbbc796d-d3c7-4c33-b9b8-ef8cf1ed7df1",
         "path": "/ui/DefaultGroup/Inventory/InventoryPanel/Inventory_ScrollView/item_slot",
         "componentNames": "MOD.Core.UITransformComponent,MOD.Core.SpriteGUIRendererComponent,script.UIItemSlot,MOD.Core.ButtonComponent",
         "jsonString": {
@@ -3458,7 +3468,7 @@
         }
       },
       {
-        "id": "8b35fd04-ed40-44a0-b2eb-f1f5650fc8dd",
+        "id": "e414d938-bc98-43ce-bf7c-39d8d8ac2bca",
         "path": "/ui/DefaultGroup/Inventory/InventoryPanel/Inventory_ScrollView/item_slot/img_slot",
         "componentNames": "MOD.Core.UITransformComponent,MOD.Core.SpriteGUIRendererComponent",
         "jsonString": {
@@ -3598,7 +3608,7 @@
         }
       },
       {
-        "id": "36c623e0-13d8-4c1f-b321-08f0ceb3d31f",
+        "id": "7601f066-4a06-4d7a-bbdd-3ea01d6f0279",
         "path": "/ui/DefaultGroup/Inventory/InventoryPanel/Inventory_ScrollView/item_slot/img_slot/item_count",
         "componentNames": "MOD.Core.UITransformComponent,MOD.Core.SpriteGUIRendererComponent,MOD.Core.TextComponent",
         "jsonString": {
@@ -3784,7 +3794,7 @@
         }
       },
       {
-        "id": "d56711e3-f7b0-4219-84c6-87f47e33a68d",
+        "id": "2a60f950-2045-45ac-9ffc-cb4dfe7b2e1a",
         "path": "/ui/DefaultGroup/Inventory/InventoryPanel/Scroll",
         "componentNames": "MOD.Core.UITransformComponent,MOD.Core.SpriteGUIRendererComponent",
         "jsonString": {
@@ -3924,7 +3934,7 @@
         }
       },
       {
-        "id": "ef0a9d0c-57e9-4a24-a442-43106fd4cac0",
+        "id": "32321bbe-de1d-49bf-9040-33c6f9d934af",
         "path": "/ui/DefaultGroup/Inventory/InventoryPanel/Scroll/bar_scroll",
         "componentNames": "MOD.Core.UITransformComponent,MOD.Core.SpriteGUIRendererComponent,MOD.Core.ButtonComponent",
         "jsonString": {

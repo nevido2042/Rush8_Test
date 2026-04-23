@@ -4,6 +4,23 @@ script PlayerInventory extends Component
 	property string InventoryUIPath = ""
 
 	@ExecSpace("ClientOnly")
+	method void OnBeginPlay()
+		-- UI가 씬에 모두 렌더링될 수 있도록 약간의 지연(0.5초) 후 아이템 추가 이벤트를 보냅니다.
+		_TimerService:SetTimerOnce(function()
+			local startItem = {
+				GUID = "start_item_001",
+				IconRUID = "87331f7901444319ad71947d99077e90", -- 아이템 아이콘 이미지 RUID (원하는 이미지로 변경하세요)
+				ItemCount = 1
+			}
+			
+			local addEvent = InventoryItemAddedEvent()
+			addEvent.Items = { startItem }
+			
+			_UserService.LocalPlayer:SendEvent(addEvent)
+		end, 0.5)
+	end
+
+	@ExecSpace("ClientOnly")
 	@EventSender("Service", "InputService")
 	handler HandleKeyDownEvent(KeyDownEvent event)
 		-- I 키가 눌렸을 때 동작
