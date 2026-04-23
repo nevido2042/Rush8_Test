@@ -1,0 +1,16 @@
+@Component
+script MonsterHit extends HitComponent
+
+	property integer maxHp = 100
+
+	property integer hp = 100
+
+	method void OnHit(Entity attacker, integer damage, boolean isCritical, string attackInfo, int32 hitCount)
+		self.hp = self.hp - 20
+		if self.hp <= 0 then
+			self.hp = 0
+			-- self:Die(attacker, damage, isCritical, attackInfo, hitCount)
+		end
+	end
+
+end

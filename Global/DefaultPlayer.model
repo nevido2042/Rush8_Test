@@ -18,7 +18,9 @@
       "BaseModelId": "player",
       "Id": "defaultplayer",
       "Components": [
-        "script.Knockback"
+        "script.Knockback",
+        "script.PlayerAttack",
+        "MOD.Core.PolygonGUIRendererComponent"
       ],
       "Properties": [],
       "Values": [

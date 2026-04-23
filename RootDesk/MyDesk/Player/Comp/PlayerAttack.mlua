@@ -1,4 +1,75 @@
 @Component
-script PlayerAttack extends Component
+script PlayerAttack extends AttackComponent
+
+	@ExecSpace("ServerOnly")
+	method void NormalAttack()
+		
+		local attackSize = Vector2(2, 2) -- 월드 좌표계에 맞게 크기 축소 (예: 2x2 타일)
+		
+		-- 플레이어가 바라보는 방향에 따라 오프셋(공격 위치) 설정
+		local dirX = 1
+		local controller = self.Entity.PlayerControllerComponent
+		if controller and controller.LookDirectionX ~= 0 then
+			dirX = controller.LookDirectionX
+		end
+		local attackOffset = Vector2(1 * dirX, 0.5) -- 앞쪽으로 1, 위쪽으로 0.5 이동
+		
+		self:Attack(attackSize, attackOffset, nil)
+		
+		-- [디버그용] 공격 범위를 화면에 빨간색 박스로 그립니다. (0.5초 지속)
+		self:DrawAttackBox(attackSize, attackOffset)
+	end
+
+	-- 화면에 그리는 시각적 효과는 클라이언트(Multicast)에서 실행되어야 합니다.
+	@ExecSpace("Multicast")
+	method void DrawAttackBox(Vector2 attackSize, Vector2 attackOffset)
+		local polyRenderer = self.Entity.PolygonRendererComponent
+		if polyRenderer then
+			-- PolygonRendererComponent는 월드/로컬 좌표계를 사용하므로 scale을 곱할 필요가 없습니다.
+			local hw = attackSize.x / 2
+			local hh = attackSize.y / 2
+			
+			polyRenderer.Points = {
+				Vector2(attackOffset.x - hw, attackOffset.y - hh),
+				Vector2(attackOffset.x + hw, attackOffset.y - hh),
+				Vector2(attackOffset.x + hw, attackOffset.y + hh),
+				Vector2(attackOffset.x - hw, attackOffset.y + hh)
+			}
+			polyRenderer.Color = Color(1, 0, 0, 0.4) -- 반투명한 빨간색
+			polyRenderer.Enable = true
+			
+			-- 0.5초 뒤에 폴리곤 렌더러를 다시 숨깁니다.
+			_TimerService:SetTimerOnce(function()
+				if isvalid(self.Entity) and self.Entity.PolygonRendererComponent then
+					self.Entity.PolygonRendererComponent.Enable = false
+				end
+			end, 0.5)
+		end
+	end
+
+	method integer CalcDamage(Entity attacker, Entity defender, string attackInfo)
+		-- __base를 사용하면 부모 컴포넌트(AttackComponent)의 원래 로직을 그대로 호출할 수 있습니다.
+		return __base:CalcDamage(attacker,defender,attackInfo)
+	end
+
+	@ExecSpace("ServerOnly")
+	@EventSender("Self")
+	handler HandlePlayerActionEvent(PlayerActionEvent event)
+		
+		--------------- Native Event Sender Info ----------------
+		-- Sender: PlayerControllerComponent
+		-- Space: Server, Client
+		---------------------------------------------------------
+		
+		-- Parameters
+		local ActionName = event.ActionName
+		-- local PlayerEntity = event.PlayerEntity
+		---------------------------------------------------------
+		
+		if ActionName == "Attack" then
+			self:NormalAttack()
+		end
+		
+	end
 
 end
