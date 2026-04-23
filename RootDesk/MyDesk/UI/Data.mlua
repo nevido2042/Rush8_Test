@@ -1,0 +1,8 @@
+@Logic
+script Data extends Logic
+
+	property any itemTable = nil
+
+	property integer ItemTableRowCount = 0
+
+end
