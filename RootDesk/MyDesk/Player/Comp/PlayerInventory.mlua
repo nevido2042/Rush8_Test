@@ -1,6 +1,21 @@
 @Component
 script PlayerInventory extends Component
 
-	property integer meso = 0
+	property string InventoryUIPath = ""
+
+	@ExecSpace("ClientOnly")
+	@EventSender("Service", "InputService")
+	handler HandleKeyDownEvent(KeyDownEvent event)
+		-- I 키가 눌렸을 때 동작
+		if event.key == KeyboardKey.I then
+			if self.InventoryUIPath == "" then return end
+			
+			local inventoryUI = _EntityService:GetEntityByPath(self.InventoryUIPath)
+			if isvalid(inventoryUI) then
+				-- 현재 활성화 상태를 반전시켜 열기/닫기 토글
+				inventoryUI.Visible = not inventoryUI.Visible
+			end
+		end
+	end
 
 end

@@ -20,7 +20,8 @@
       "Components": [
         "script.Knockback",
         "script.PlayerAttack",
-        "MOD.Core.PolygonRendererComponent"
+        "MOD.Core.PolygonRendererComponent",
+        "script.PlayerInventory"
       ],
       "Properties": [],
       "Values": [
@@ -509,6 +510,15 @@
             "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
           },
           "Value": true
+        },
+        {
+          "TargetType": "script.PlayerInventory",
+          "Name": "InventoryUIPath",
+          "ValueType": {
+            "$type": "MODNativeType",
+            "type": "System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+          },
+          "Value": "/ui/DefaultGroup/Inventory"
         }
       ],
       "EventLinks": [],

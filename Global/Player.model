@@ -31,7 +31,6 @@
         "MOD.Core.NameTagComponent",
         "MOD.Core.TriggerComponent",
         "MOD.Core.AvatarStateAnimationComponent",
-        "script.PlayerInventory",
         "script.PlayerStat"
       ],
       "Properties": [
