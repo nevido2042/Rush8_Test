@@ -1,0 +1,36 @@
+@Component
+script MonsterExp extends Component
+
+	property integer ExpReward = 8
+
+	property Entity LastAttacker = nil
+
+	@ExecSpace("ServerOnly")
+	@EventSender("Self")
+	handler HandleHitEvent(HitEvent event)
+		-- 피격당할 때, 공격자(플레이어)를 기록해 둡니다.
+		if isvalid(event.AttackerEntity) then
+			self.LastAttacker = event.AttackerEntity
+		end
+
+		log("몬스터 피격! 공격자:", event.AttackerEntity)
+	end
+
+	@ExecSpace("ServerOnly")
+	@EventSender("Self")
+	handler HandleDeadEvent(DeadEvent event)
+		log("몬스터 사망! 저장된 공격자:", self.LastAttacker)
+		
+		-- 죽는 순간 기록된 플레이어가 있다면 PlayerStat에 접근하여 경험치를 줍니다.
+		if isvalid(self.LastAttacker) then
+			local playerStat = self.LastAttacker.PlayerStat
+			if playerStat then
+				log("경험치 지급 완료:", self.ExpReward)
+				playerStat:AddExp(self.ExpReward)
+			else
+				log_error("공격자에게 PlayerStat 컴포넌트가 없습니다!")
+			end
+		end
+	end
+
+end

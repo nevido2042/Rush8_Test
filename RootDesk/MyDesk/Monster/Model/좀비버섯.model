@@ -29,7 +29,8 @@
         "script.Monster",
         "script.MonsterAttack",
         "script.MonsterHit",
-        "script.MonsterDropItem"
+        "script.MonsterDropItem",
+        "script.MonsterExp"
       ],
       "Properties": [],
       "Values": [

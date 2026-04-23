@@ -3,9 +3,9 @@ script PlayerStat extends Component
 
 	property integer level = 1
 
-	property integer exp = 1
+	property integer exp = 0
 
-	property integer maxExp = 1
+	property integer maxLevel = 10
 
 	property integer hp = 100
 
@@ -29,5 +29,84 @@ script PlayerStat extends Component
 				self.isInvincible = false
 			end
 		end, self.invincibilityDuration)
+	end
+
+	method integer GetRequiredExp()
+		return math.floor(8 * (2 ^ (self.level - 1)))
+	end
+
+	@ExecSpace("ServerOnly")
+	method void AddExp(integer amount)
+		if self.level >= self.maxLevel then return end
+		
+		self.exp = self.exp + amount
+		local leveledUp = false
+		
+		-- 현재 경험치가 요구 경험치 이상일 경우 레벨업 (한 번에 여러 레벨을 오를 수 있도록 while 사용)
+		while self.exp >= self:GetRequiredExp() and self.level < self.maxLevel do
+			self.exp = self.exp - self:GetRequiredExp()
+			self.level = self.level + 1
+			leveledUp = true
+		end
+		
+		-- 최대 레벨 도달 시 경험치를 0으로 고정
+		if self.level >= self.maxLevel then
+			self.exp = 0
+		end
+		
+		-- 경험치 현황 로그 출력
+		log(string.format("경험치 획득! 현재 레벨: %d | 경험치: %d / %d", self.level, self.exp, self:GetRequiredExp()))
+		
+		-- 클라이언트 공간에 있는 UI 업데이트 함수 호출
+		self:UpdateStatsUI(self.level, self.exp, self:GetRequiredExp(), self.maxLevel)
+		
+		if leveledUp then
+			self:ShowLevelUpToast()
+		end
+	end
+
+	@ExecSpace("ClientOnly")
+	method void UpdateStatsUI(integer level, integer exp, integer reqExp, integer maxLevel)
+		local uiGroup = _EntityService:GetEntityByPath("/ui/DefaultGroup/UIMyInfo")
+		if not isvalid(uiGroup) then return end
+		
+		local textName = uiGroup:GetChildByName("Text_name")
+		local hpBar = uiGroup:GetChildByName("HP_bar")
+		
+		if isvalid(textName) then
+			textName.TextComponent.Text = "Level " .. tostring(level)
+		end
+		
+		if isvalid(hpBar) then
+			local uiText = hpBar:GetChildByName("UIText")
+			if level >= maxLevel then
+				hpBar.SliderComponent.Value = 1
+				if isvalid(uiText) then uiText.TextComponent.Text = "MAX" end
+			else
+				hpBar.SliderComponent.Value = exp / reqExp
+				if isvalid(uiText) then uiText.TextComponent.Text = tostring(exp) .. " / " .. tostring(reqExp) end
+			end
+		end
+	end
+
+	@ExecSpace("ClientOnly")
+	method void ShowLevelUpToast()
+		local toastGroup = _EntityService:GetEntityByPath("/ui/ToastGroup")
+		if isvalid(toastGroup) then
+			local toastMsg = toastGroup:GetChildByName("Toast_message")
+			if isvalid(toastMsg) then
+				toastMsg.TextComponent.Text = "레벨업!"
+				toastGroup.Enable = true
+				
+				-- 2초 뒤에 팝업 다시 숨기기
+				_TimerService:SetTimerOnce(function() if isvalid(toastGroup) then toastGroup.Enable = false end end, 2.0)
+			end
+		end
+	end
+
+	@ExecSpace("ClientOnly")
+	method void OnBeginPlay()
+		-- 시작할 때 UI 초기화
+		self:UpdateStatsUI(self.level, self.exp, self:GetRequiredExp(), self.maxLevel)
 	end
 end
