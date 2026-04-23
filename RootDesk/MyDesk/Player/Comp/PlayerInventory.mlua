@@ -3,21 +3,24 @@ script PlayerInventory extends Component
 
 	property string InventoryUIPath = ""
 
-	@ExecSpace("ClientOnly")
+	@ExecSpace("ServerOnly")
 	method void OnBeginPlay()
-		-- UI가 씬에 모두 렌더링될 수 있도록 약간의 지연(0.5초) 후 아이템 추가 이벤트를 보냅니다.
-		_TimerService:SetTimerOnce(function()
-			local startItem = {
-				GUID = "start_item_001",
-				IconRUID = "87331f7901444319ad71947d99077e90", -- 아이템 아이콘 이미지 RUID (원하는 이미지로 변경하세요)
-				ItemCount = 1
-			}
-			
-			local addEvent = InventoryItemAddedEvent()
-			addEvent.Items = { startItem }
-			
-			_UserService.LocalPlayer:SendEvent(addEvent)
-		end, 0.5)
+		local timerId = 0
+		local checkAndGiveItem = function()
+			if isvalid(self.Entity) and self.Entity.LiteInventory then
+				-- LiteInventory의 데이터 불러오기가 완전히 끝났는지 확인 (IsInitialized)
+				if self.Entity.LiteInventory.IsInitialized then
+					log("인벤토리 로딩 완료! 뿔버섯의 갓 지급")
+					self.Entity.LiteInventory:ModifyItem(1, 1)
+					_TimerService:ClearTimer(timerId)
+				end
+			else
+				_TimerService:ClearTimer(timerId)
+			end
+		end
+		
+		-- 0.5초마다 인벤토리 로딩이 끝났는지 반복해서 확인하고, 끝나면 아이템 지급 후 타이머를 종료합니다.
+		timerId = _TimerService:SetTimerRepeat(checkAndGiveItem, 0.5, 1.0)
 	end
 
 	@ExecSpace("ClientOnly")

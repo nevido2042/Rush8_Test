@@ -21,7 +21,8 @@
         "script.Knockback",
         "script.PlayerAttack",
         "MOD.Core.PolygonRendererComponent",
-        "script.PlayerInventory"
+        "script.PlayerInventory",
+        "script.LiteInventory"
       ],
       "Properties": [],
       "Values": [

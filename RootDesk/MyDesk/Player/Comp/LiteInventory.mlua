@@ -1,0 +1,136 @@
+@Component
+script LiteInventory extends Component
+
+	property boolean IsInitialized = false
+
+	@ExecSpace("ServerOnly")
+	method void OnBeginPlay()
+		-- inventoryData에 UserItemDataSet를 불러옴
+		self._T.inventoryData = {}
+		for i = 1, _Data.ItemTableRowCount do
+			self._T.inventoryData[i] = 0
+		end
+		
+		local userDataStorage = _DataStorageService:GetUserDataStorage(self.Entity.PlayerComponent.UserId)
+		local errorCode, itemData = userDataStorage:GetAndWait("ItemData")
+		
+		if errorCode ~= 0 then
+			log(errorCode)
+			return
+		end
+		
+		if itemData ~= nil and itemData ~= "" then
+			local itemArr = _UtilLogic:Split(itemData, ",")
+			for i, v in ipairs(itemArr) do
+				self._T.inventoryData[i] = tonumber(v) or 0
+			end
+		end
+		
+		self._T.userDataStorage = userDataStorage
+		self.IsInitialized = true
+		
+		-- 클라이언트(UI)와 동기화
+		self:SyncInitToClient(_HttpService:JSONEncode(self._T.inventoryData))
+		
+		local saveInventory = function()
+			local dataConcatString = table.concat(self._T.inventoryData, ",")
+			self._T.userDataStorage:SetAsync("ItemData", dataConcatString, function(errorCode) log("저장 완료") end)
+			log("저장 중...")
+		end
+		
+		local saveInterval = 300
+		_TimerService:SetTimerRepeat(saveInventory, saveInterval, saveInterval)
+	end
+
+	@ExecSpace("Client")
+	method void SyncInitToClient(string jsonStr)
+		local success, counts = pcall(function() return _HttpService:JSONDecode(jsonStr) end)
+		if not success then return end
+		
+		local items = {}
+		for i, count in ipairs(counts) do
+			if count > 0 then
+				local info = _Data:GetItem(i)
+				if info then
+					table.insert(items, {
+						GUID = tostring(i),
+						IconRUID = info.IconRUID,
+						ItemCount = count,
+						ItemName = info.Name
+					})
+				end
+			end
+		end
+		
+		local initEvent = InventoryItemInitEvent()
+		initEvent.Items = items
+		_UserService.LocalPlayer:SendEvent(initEvent)
+	end
+
+	@ExecSpace("ServerOnly")
+	method void ModifyItem(number itemIndex, number deltaAmount)
+		if itemIndex < 1 or itemIndex > _Data.ItemTableRowCount then
+			log_error("itemIndex error")
+			return
+		end
+		
+		local prevAmount = self._T.inventoryData[itemIndex]
+		local amountResult = prevAmount + deltaAmount
+		
+		if amountResult < 0 then
+			log_error("Item amount is less then zero")
+			amountResult = 0
+		end
+		
+		self._T.inventoryData[itemIndex] = amountResult
+		
+		self:SyncModifyToClient(itemIndex, amountResult)
+	end
+
+	@ExecSpace("Client")
+	method void SyncModifyToClient(number itemIndex, number amountResult)
+		local info = _Data:GetItem(itemIndex)
+		if not info then return end
+		
+		local item = {
+			GUID = tostring(itemIndex),
+			IconRUID = info.IconRUID,
+			ItemCount = amountResult,
+			ItemName = info.Name
+		}
+		
+		local ev = InventoryItemModifiedEvent()
+		ev.Items = {item}
+		_UserService.LocalPlayer:SendEvent(ev)
+	end
+
+	@ExecSpace("ServerOnly")
+	method void RemoveItem(number itemIndex)
+		if itemIndex < 1 or itemIndex > _Data.ItemTableRowCount then
+			log_error("itemIndex error")
+			return
+		end
+		
+		self._T.inventoryData[itemIndex] = 0
+		
+		self:SyncModifyToClient(itemIndex, 0)
+	end
+
+	@ExecSpace("ServerOnly")
+	@EventSender("Service", "UserService")
+	handler HandleUserLeaveEvent(UserLeaveEvent event)
+		local UserId = event.UserId
+		local thisUserId = self.Entity.PlayerComponent.UserId
+		
+		if thisUserId ~= UserId then
+			return
+		end
+		
+		-- 플레이를 끝낼 때 인벤토리 데이터 정보를 저장함
+		if self._T.userDataStorage then
+			local dataConcatString = table.concat(self._T.inventoryData, ",")
+			self._T.userDataStorage:SetAndWait("ItemData", dataConcatString)
+		end
+	end
+
+end

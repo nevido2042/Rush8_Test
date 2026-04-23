@@ -5,12 +5,14 @@ script UIInventory extends Component
 
 	property Entity scrollView = nil
 
-	property SyncTable<string, Entity> SlotItems
+	property any SlotItems = nil
 
 	property string inventoryBtnPath = "/ui/DefaultGroup/RPGButtons/btn_inventory"
 
 	@ExecSpace("ClientOnly")
 	method void OnBeginPlay()
+		self.SlotItems = {}
+		
 		self.itemUI =_EntityService:GetEntityByPath(self.Entity.Path .. "/InventoryPanel/Inventory_ScrollView/item_slot")
 		self.itemUI:SetEnable(false)
 		self.scrollView = _EntityService:GetEntityByPath(self.Entity.Path .. "/InventoryPanel/Inventory_ScrollView")
@@ -43,10 +45,21 @@ script UIInventory extends Component
 		local Items = event.Items
 		--------------------------------------------------------
 		
+		-- 기존 슬롯 초기화
+		if type(self.SlotItems) == "table" then
+			for k, v in pairs(self.SlotItems) do
+				if isvalid(v) then v:Destroy() end
+			end
+		end
+		self.SlotItems = {}
+		
 		for i, item in pairs(Items) do
-			local itemslot = _SpawnService:SpawnByEntity(self.itemUI, "Item", Vector3.zero, self.scrollView)
-			itemslot.UIItemSlot:SetData(item)
-			self.SlotItems[item.GUID] = itemslot
+			if item.ItemCount > 0 then
+				local itemslot = _SpawnService:SpawnByEntity(self.itemUI, "Item", Vector3.zero, self.scrollView)
+				itemslot.Enable = true
+				itemslot.UIItemSlot:SetData(item)
+				self.SlotItems[item.GUID] = itemslot
+			end
 		end
 	end
 
@@ -56,10 +69,15 @@ script UIInventory extends Component
 		local Entity = event.Entity
 		local Items = event.Items
 		--------------------------------------------------------
+		
+		if type(self.SlotItems) ~= "table" then self.SlotItems = {} end
 		for i, item in pairs(Items) do
-			local itemslot = _SpawnService:SpawnByEntity(self.itemUI, "Item", Vector3.zero, self.scrollView)
-			itemslot.UIItemSlot:SetData(item)
-			self.SlotItems[item.GUID] = itemslot
+			if self.SlotItems[item.GUID] == nil then
+				local itemslot = _SpawnService:SpawnByEntity(self.itemUI, "Item", Vector3.zero, self.scrollView)
+				itemslot.Enable = true
+				itemslot.UIItemSlot:SetData(item)
+				self.SlotItems[item.GUID] = itemslot
+			end
 		end
 	end
 
@@ -69,9 +87,12 @@ script UIInventory extends Component
 		local Entity = event.Entity
 		local Items = event.Items
 		--------------------------------------------------------
+		
+		if type(self.SlotItems) ~= "table" then return end
 		for	i,item in pairs(Items) do
 			if self.SlotItems[item.GUID] ~= nil then
 				self.SlotItems[item.GUID]:Destroy()
+				self.SlotItems[item.GUID] = nil
 			end
 		end
 	end
@@ -82,9 +103,23 @@ script UIInventory extends Component
 		local Entity = event.Entity
 		local Items = event.Items
 		--------------------------------------------------------
+		
+		if type(self.SlotItems) ~= "table" then self.SlotItems = {} end
 		for	i,item in pairs(Items) do
-			if self.SlotItems[item.GUID] ~= nil then
-				self.SlotItems[item.GUID].UIItemSlot:SetData(item)
+			if item.ItemCount <= 0 then
+				if self.SlotItems[item.GUID] ~= nil then
+					self.SlotItems[item.GUID]:Destroy()
+					self.SlotItems[item.GUID] = nil
+				end
+			else
+				if self.SlotItems[item.GUID] ~= nil then
+					self.SlotItems[item.GUID].UIItemSlot:SetData(item)
+				else
+					local itemslot = _SpawnService:SpawnByEntity(self.itemUI, "Item", Vector3.zero, self.scrollView)
+					itemslot.Enable = true
+					itemslot.UIItemSlot:SetData(item)
+					self.SlotItems[item.GUID] = itemslot
+				end
 			end
 		end
 	end

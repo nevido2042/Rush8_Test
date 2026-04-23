@@ -5,4 +5,28 @@ script Data extends Logic
 
 	property integer ItemTableRowCount = 0
 
+	method void OnBeginPlay()
+		self.itemTable = {}
+		
+		-- 데이터셋 불러오기
+		local dataSet = _DataService:GetTable("UserItemDataSet")
+		if dataSet then
+			self.ItemTableRowCount = dataSet:GetRowCount()
+			
+			for i = 1, self.ItemTableRowCount do
+				self.itemTable[i] = {
+					id = dataSet:GetCell(i, "id"),
+					Name = dataSet:GetCell(i, "Name"),
+					IconRUID = dataSet:GetCell(i, "IconRUID"),
+					MaxStackCount = tonumber(dataSet:GetCell(i, "MaxStackCount")) or 0
+				}
+			end
+		end
+	end
+
+	method any GetItem(integer index)
+		if not self.itemTable then return nil end
+		return self.itemTable[index]
+	end
+
 end
