@@ -65,7 +65,7 @@ script PlayerStat extends Component
 		end
 	end
 
-	@ExecSpace("ClientOnly")
+	@ExecSpace("Client")
 	method void UpdateStatsUI(integer level, integer exp, integer reqExp, integer maxLevel)
 		local uiGroup = _EntityService:GetEntityByPath("/ui/DefaultGroup/UIMyInfo")
 		if not isvalid(uiGroup) then return end
@@ -89,7 +89,7 @@ script PlayerStat extends Component
 		end
 	end
 
-	@ExecSpace("ClientOnly")
+	@ExecSpace("Client")
 	method void ShowLevelUpToast()
 		local toastGroup = _EntityService:GetEntityByPath("/ui/ToastGroup")
 		if isvalid(toastGroup) then
