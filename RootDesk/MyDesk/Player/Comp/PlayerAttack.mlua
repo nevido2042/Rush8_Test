@@ -80,8 +80,12 @@ script PlayerAttack extends AttackComponent
 	end
 
 	method integer CalcDamage(Entity attacker, Entity defender, string attackInfo)
-		-- __base를 사용하면 부모 컴포넌트(AttackComponent)의 원래 로직을 그대로 호출할 수 있습니다.
-		return __base:CalcDamage(attacker,defender,attackInfo)
+		-- 플레이어의 PlayerStat에서 attackDamage를 가져와 최종 데미지로 넘겨줍니다.
+		local stat = attacker.PlayerStat
+		if stat then
+			return stat.attackDamage
+		end
+		return 0
 	end
 
 	method boolean IsAttackTarget(Entity defender, string attackInfo)

@@ -30,14 +30,14 @@ script PlayerInventory extends Component
 		if self.Entity ~= _UserService.LocalPlayer then return end
 
 		-- [테스트용] O 키가 눌렸을 때 인벤토리 데이터 초기화
-		if event.key == KeyboardKey.O then
-			if isvalid(self.Entity) and self.Entity.LiteInventory then
-				self.Entity.LiteInventory:ResetInventory()
-			end
-			if isvalid(self.Entity) and self.Entity.PlayerStat then
-				self.Entity.PlayerStat:ResetStat()
-			end
-		end
+		-- if event.key == KeyboardKey.O then
+		-- 	if isvalid(self.Entity) and self.Entity.LiteInventory then
+		-- 		self.Entity.LiteInventory:ResetInventory()
+		-- 	end
+		-- 	if isvalid(self.Entity) and self.Entity.PlayerStat then
+		-- 		self.Entity.PlayerStat:ResetStat()
+		-- 	end
+		-- end
 
 		-- I 키가 눌렸을 때 동작
 		if event.key == KeyboardKey.I then

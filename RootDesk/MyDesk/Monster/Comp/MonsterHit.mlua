@@ -7,8 +7,8 @@ script MonsterHit extends HitComponent
 
 	method void OnHit(Entity attacker, integer damage, boolean isCritical, string attackInfo, int32 hitCount)
 		
-		-- 실제 들어온 데미지 수치만큼 체력을 깎습니다.
-		self.hp = self.hp - 50
+		-- 엔진(AttackComponent의 CalcDamage)에서 계산되어 넘어온 damage를 그대로 적용합니다.
+		self.hp = self.hp - damage
 		
 		-- 부모(HitComponent)의 OnHit을 호출하여 엔진 기본 로직인 HitEvent를 정상적으로 발생시킵니다.
 		__base:OnHit(attacker, damage, isCritical, attackInfo, hitCount)
