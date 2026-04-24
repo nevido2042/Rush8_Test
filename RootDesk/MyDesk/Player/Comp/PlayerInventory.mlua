@@ -26,6 +26,9 @@ script PlayerInventory extends Component
 	@ExecSpace("ClientOnly")
 	@EventSender("Service", "InputService")
 	handler HandleKeyDownEvent(KeyDownEvent event)
+		-- 본인의 캐릭터(LocalPlayer)에서만 입력 이벤트를 처리하도록 제한
+		if self.Entity ~= _UserService.LocalPlayer then return end
+
 		-- I 키가 눌렸을 때 동작
 		if event.key == KeyboardKey.I then
 			-- 현재 아이템 목록 로그 출력
@@ -33,12 +36,17 @@ script PlayerInventory extends Component
 				self.Entity.LiteInventory:LogCurrentItems()
 			end
 
-			if self.InventoryUIPath == "" then return end
+			if self.InventoryUIPath == "" then
+				log_error("InventoryUIPath가 비어있습니다. 프로퍼티 창에서 인벤토리 UI 경로를 설정해주세요.")
+				return
+			end
 			
 			local inventoryUI = _EntityService:GetEntityByPath(self.InventoryUIPath)
 			if isvalid(inventoryUI) then
 				-- 현재 활성화 상태를 반전시켜 열기/닫기 토글
-				inventoryUI.Visible = not inventoryUI.Visible
+				inventoryUI.Enable = not inventoryUI.Enable
+			else
+				log_error("해당 경로에서 UI를 찾을 수 없습니다: " .. self.InventoryUIPath)
 			end
 		end
 	end

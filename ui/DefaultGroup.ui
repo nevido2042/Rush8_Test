@@ -2100,6 +2100,7 @@
             {
               "@type": "script.UIInventory",
               "Enable": true,
+              "scrollView": null,
               "inventoryBtnPath": ""
             }
           ],
