@@ -28,6 +28,11 @@ script PlayerInventory extends Component
 	handler HandleKeyDownEvent(KeyDownEvent event)
 		-- I 키가 눌렸을 때 동작
 		if event.key == KeyboardKey.I then
+			-- 현재 아이템 목록 로그 출력
+			if isvalid(self.Entity) and self.Entity.LiteInventory then
+				self.Entity.LiteInventory:LogCurrentItems()
+			end
+
 			if self.InventoryUIPath == "" then return end
 			
 			local inventoryUI = _EntityService:GetEntityByPath(self.InventoryUIPath)

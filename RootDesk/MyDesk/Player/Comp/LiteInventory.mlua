@@ -133,4 +133,19 @@ script LiteInventory extends Component
 		end
 	end
 
+	@ExecSpace("Server")
+	method void LogCurrentItems()
+		if not self._T.inventoryData then return end
+		
+		log("=== 현재 인벤토리 아이템 목록 ===")
+		for i, count in ipairs(self._T.inventoryData) do
+			if count > 0 then
+				local info = _Data:GetItem(i)
+				local itemName = info and info.Name or "Unknown"
+				log(string.format("ID: %d | 이름: %s | 수량: %d", i, itemName, count))
+			end
+		end
+		log("================================")
+	end
+
 end
