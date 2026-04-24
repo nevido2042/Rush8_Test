@@ -8,7 +8,7 @@ script PlayerAttack extends AttackComponent
 	@ExecSpace("ServerOnly")
 	method void NormalAttack()
 		
-		local attackSize = Vector2(2, 2) -- 월드 좌표계에 맞게 크기 축소 (예: 2x2 타일)
+		local attackSize = Vector2(1, 1) -- 월드 좌표계에 맞게 크기 축소 (예: 2x2 타일)
 		
 		-- 플레이어가 바라보는 방향에 따라 오프셋(공격 위치) 설정
 		local dirX = 1

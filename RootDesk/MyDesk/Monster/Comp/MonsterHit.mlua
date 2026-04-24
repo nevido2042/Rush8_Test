@@ -5,11 +5,21 @@ script MonsterHit extends HitComponent
 
 	property integer hp = 100
 
+	property string HitSoundRUID = "" -- 타격 시 재생할 사운드 RUID
+
 	method void OnHit(Entity attacker, integer damage, boolean isCritical, string attackInfo, int32 hitCount)
 		
+		-- 모든 클라이언트 화면에 데미지 스킨(피격 숫자)을 출력합니다.
+		-- self:ShowDamageSkin(damage, isCritical)
+
 		-- 엔진(AttackComponent의 CalcDamage)에서 계산되어 넘어온 damage를 그대로 적용합니다.
 		self.hp = self.hp - damage
 		
+		-- 피격 사운드 재생
+		if self.HitSoundRUID ~= "" then
+			_SoundService:PlaySound(self.HitSoundRUID, 1)
+		end
+
 		-- 부모(HitComponent)의 OnHit을 호출하여 엔진 기본 로직인 HitEvent를 정상적으로 발생시킵니다.
 		__base:OnHit(attacker, damage, isCritical, attackInfo, hitCount)
 		
@@ -37,5 +47,13 @@ script MonsterHit extends HitComponent
 		end
 
 	end
+
+	-- @ExecSpace("Multicast")
+	-- method void ShowDamageSkin(integer damage, boolean isCritical)
+	-- 	-- 엔진 규격에 맞게 데미지 스킨 파라미터 설정
+	-- 	local damages = {damage} -- 데미지 값들을 테이블(배열) 형태로 감싸야 합니다.
+	-- 	local skinId = "Default" -- 기본 데미지 스킨 ID("0") 사용
+	-- 	_DamageSkinService:Play(self.Entity, skinId, 0.0, damages, DamageSkinTweenType.Default, isCritical)
+	-- end
 
 end

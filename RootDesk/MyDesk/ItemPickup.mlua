@@ -4,6 +4,7 @@ script ItemPickup extends Component
 	property integer ItemId = 1
 	property integer Amount = 1
 	property boolean IsPickupable = false
+	property string PickupSoundRUID = "" -- 획득 시 재생할 사운드 RUID
 
 	@ExecSpace("ServerOnly")
 	method void OnBeginPlay()
@@ -30,6 +31,11 @@ script ItemPickup extends Component
 			
 			-- 디버그용 로그 (어떤 아이템 엔티티가 실행되었는지 고유 이름 확인)
 			log("[ItemPickup] 획득 처리 완료! 삭제된 엔티티 이름: " .. tostring(self.Entity.Id))
+
+			-- 획득 사운드 재생
+			if self.PickupSoundRUID ~= "" then
+				_SoundService:PlaySound(self.PickupSoundRUID, 1)
+			end
 
 			target.LiteInventory:ModifyItem(self.ItemId, self.Amount)
 			self.Entity:Destroy()
