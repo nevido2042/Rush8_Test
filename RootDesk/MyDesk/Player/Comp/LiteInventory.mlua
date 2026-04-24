@@ -75,6 +75,9 @@ script LiteInventory extends Component
 
 	@ExecSpace("ServerOnly")
 	method void ModifyItem(number itemIndex, number deltaAmount)
+		-- 소수점 타입으로 인한 GUID 문자열 불일치("1" vs "1.0") 방지를 위해 정수로 강제 변환
+		itemIndex = math.floor(itemIndex)
+		
 		if itemIndex < 1 or itemIndex > _Data.ItemTableRowCount then
 			log_error("itemIndex error")
 			return
@@ -114,6 +117,9 @@ script LiteInventory extends Component
 
 	@ExecSpace("ServerOnly")
 	method void RemoveItem(number itemIndex)
+		-- 소수점 타입으로 인한 GUID 문자열 불일치 방지
+		itemIndex = math.floor(itemIndex)
+		
 		if itemIndex < 1 or itemIndex > _Data.ItemTableRowCount then
 			log_error("itemIndex error")
 			return
