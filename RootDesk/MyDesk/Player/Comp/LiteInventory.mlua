@@ -68,7 +68,7 @@ script LiteInventory extends Component
 		local success, items = pcall(function() return _HttpService:JSONDecode(jsonStr) end)
 		if not success or type(items) ~= "table" then return end
 		
-		local initEvent = InventoryItemInitEvent()
+		local initEvent = MyItemInitEvent()
 		initEvent.Items = items
 		_UserService.LocalPlayer:SendEvent(initEvent)
 	end
@@ -107,7 +107,7 @@ script LiteInventory extends Component
 		local success, item = pcall(function() return _HttpService:JSONDecode(jsonStr) end)
 		if not success or type(item) ~= "table" then return end
 		
-		local ev = InventoryItemModifiedEvent()
+		local ev = MyItemModifiedEvent()
 		ev.Items = {item}
 		_UserService.LocalPlayer:SendEvent(ev)
 	end

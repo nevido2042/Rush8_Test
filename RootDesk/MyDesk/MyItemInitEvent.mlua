@@ -1,0 +1,6 @@
+@Event
+script MyItemInitEvent extends EventType
+
+	property any Items = nil
+
+end

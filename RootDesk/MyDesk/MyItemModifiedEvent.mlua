@@ -1,0 +1,6 @@
+@Event
+script MyItemModifiedEvent extends EventType
+
+	property any Items = nil
+
+end

@@ -45,15 +45,15 @@ script UIInventory extends Component
 
 	@ExecSpace("ClientOnly")
 	@EventSender("LocalPlayer")
-	handler HandleInventoryItemInitEvent(InventoryItemInitEvent event)
+	handler HandleMyItemInitEvent(MyItemInitEvent event)
 		-- Parameters
 		local Items = event.Items
 		--------------------------------------------------------
 
 		-- [테스트용] 이벤트를 통해 받은 초기화 데이터를 무시하고 뿔버섯의 갓 더미 데이터로 덮어씌웁니다.
-		Items = {
-			{ GUID = "1", ItemName = "뿔버섯의 갓", ItemCount = 1, IconRUID = "87331f7901444319ad71947d99077e90" }
-		}
+		-- Items = {
+		-- 	{ GUID = "1", ItemName = "뿔버섯의 갓", ItemCount = 1, IconRUID = "87331f7901444319ad71947d99077e90" }
+		-- }
 
 		if Items == nil then
 			log_error("[InitEvent] Items 데이터가 nil입니다! Workspace의 Event에서 Items(any 타입) 프로퍼티가 선언되었는지 확인하세요.")
@@ -123,7 +123,7 @@ script UIInventory extends Component
 
 	@ExecSpace("ClientOnly")
 	@EventSender("LocalPlayer")
-	handler HandleInventoryItemModifiedEvent(InventoryItemModifiedEvent event)
+	handler HandleMyItemModifiedEvent(MyItemModifiedEvent event)
 		-- Parameters
 		local Items = event.Items
 		--------------------------------------------------------
