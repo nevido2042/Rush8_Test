@@ -5,6 +5,8 @@ script MonsterExp extends Component
 
 	property Entity LastAttacker = nil
 
+	property boolean IsExpAwarded = false
+
 	@ExecSpace("ServerOnly")
 	@EventSender("Self")
 	handler HandleHitEvent(HitEvent event)
@@ -19,6 +21,11 @@ script MonsterExp extends Component
 	@ExecSpace("ServerOnly")
 	@EventSender("Self")
 	handler HandleDeadEvent(DeadEvent event)
+		-- 경험치 중복 지급 방지 잠금장치
+		if self.IsExpAwarded then return end
+		
+		self.IsExpAwarded = true
+
 		log("몬스터 사망! 저장된 공격자:", self.LastAttacker)
 		
 		-- 죽는 순간 기록된 플레이어가 있다면 PlayerStat에 접근하여 경험치를 줍니다.

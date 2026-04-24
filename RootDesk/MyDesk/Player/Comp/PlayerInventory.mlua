@@ -34,6 +34,9 @@ script PlayerInventory extends Component
 			if isvalid(self.Entity) and self.Entity.LiteInventory then
 				self.Entity.LiteInventory:ResetInventory()
 			end
+			if isvalid(self.Entity) and self.Entity.PlayerStat then
+				self.Entity.PlayerStat:ResetStat()
+			end
 		end
 
 		-- I 키가 눌렸을 때 동작

@@ -417,6 +417,15 @@
             "type": "System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
           },
           "Value": "model://445b00fc-a93e-468f-8147-5645b1a350f5"
+        },
+        {
+          "TargetType": "script.MonsterExp",
+          "Name": "ExpReward",
+          "ValueType": {
+            "$type": "MODNativeType",
+            "type": "System.Int64, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+          },
+          "Value": 5
         }
       ],
       "EventLinks": [],

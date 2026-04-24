@@ -1,11 +1,10 @@
 @Component
 script PlayerStat extends Component
 
-	property integer level = 1
-
-	property integer exp = 0
-
-	property integer maxLevel = 10
+	property integer Level = 1
+	property integer Exp = 0
+	property integer MaxLevel = 10
+	property any userDataStorage = nil
 
 	property integer hp = 100
 
@@ -31,72 +30,128 @@ script PlayerStat extends Component
 		end, self.invincibilityDuration)
 	end
 
-	method integer GetRequiredExp()
-		return math.floor(8 * (2 ^ (self.level - 1)))
+	method integer GetReqExp(integer currentLevel)
+		-- 요구 경험치: 1레벨 8에서 시작, 레벨마다 2배 증가 (8 * 2^(레벨-1))
+		return math.floor(8 * (2 ^ (currentLevel - 1)))
+	end
+
+	@ExecSpace("ServerOnly")
+	method void OnBeginPlay()
+		-- DataStorageService를 이용해 유저 고유 데이터 스토리지 가져오기
+		local userId = self.Entity.PlayerComponent.UserId
+		self.userDataStorage = _DataStorageService:GetUserDataStorage(userId)
+		
+		-- 저장된 데이터 불러오기 (GetAndWait)
+		local errorCode1, levelData = self.userDataStorage:GetAndWait("PlayerLevel")
+		local errorCode2, expData = self.userDataStorage:GetAndWait("PlayerExp")
+		
+		if errorCode1 == 0 and levelData ~= nil and levelData ~= "" then
+			self.Level = tonumber(levelData) or 1
+		end
+		
+		if errorCode2 == 0 and expData ~= nil and expData ~= "" then
+			self.Exp = tonumber(expData) or 0
+		end
+		
+		log(string.format("[PlayerStat] 데이터 로드 완료 - 레벨: %d, 경험치: %d", self.Level, self.Exp))
+		
+		-- 로드 완료 후 UI 동기화
+		self:SyncStatToClient(self.Level, self.Exp)
 	end
 
 	@ExecSpace("ServerOnly")
 	method void AddExp(integer amount)
-		if self.level >= self.maxLevel then return end
+		if self.Level >= self.MaxLevel then return end
 		
-		self.exp = self.exp + amount
-		local leveledUp = false
+		self.Exp = self.Exp + amount
+		log(string.format("경험치 획득! 현재 경험치: %d", self.Exp))
 		
-		-- 현재 경험치가 요구 경험치 이상일 경우 레벨업 (한 번에 여러 레벨을 오를 수 있도록 while 사용)
-		while self.exp >= self:GetRequiredExp() and self.level < self.maxLevel do
-			self.exp = self.exp - self:GetRequiredExp()
-			self.level = self.level + 1
-			leveledUp = true
-		end
-		
-		-- 최대 레벨 도달 시 경험치를 0으로 고정
-		if self.level >= self.maxLevel then
-			self.exp = 0
-		end
-		
-		-- 경험치 현황 로그 출력
-		log(string.format("경험치 획득! 현재 레벨: %d | 경험치: %d / %d", self.level, self.exp, self:GetRequiredExp()))
-		
-		-- 클라이언트 공간에 있는 UI 업데이트 함수 호출
-		self:UpdateStatsUI(self.level, self.exp, self:GetRequiredExp(), self.maxLevel)
-		
-		if leveledUp then
-			self:ShowLevelUpToast()
-		end
-	end
-
-	@ExecSpace("Client")
-	method void UpdateStatsUI(integer level, integer exp, integer reqExp, integer maxLevel)
-		local uiGroup = _EntityService:GetEntityByPath("/ui/DefaultGroup/UIMyInfo")
-		if not isvalid(uiGroup) then return end
-		
-		local textName = uiGroup:GetChildByName("Text_name")
-		local hpBar = uiGroup:GetChildByName("HP_bar")
-		
-		if isvalid(textName) then
-			textName.TextComponent.Text = "Level " .. tostring(level)
-		end
-		
-		if isvalid(hpBar) then
-			local uiText = hpBar:GetChildByName("UIText")
-			if level >= maxLevel then
-				hpBar.SliderComponent.Value = 1
-				if isvalid(uiText) then uiText.TextComponent.Text = "MAX" end
+		local isLevelUp = false
+		while self.Level < self.MaxLevel do
+			local reqExp = self:GetReqExp(self.Level)
+			if self.Exp >= reqExp then
+				self.Exp = self.Exp - reqExp
+				self.Level = self.Level + 1
+				isLevelUp = true
 			else
-				hpBar.SliderComponent.Value = exp / reqExp
-				if isvalid(uiText) then uiText.TextComponent.Text = tostring(exp) .. " / " .. tostring(reqExp) end
+				break
 			end
 		end
+		
+		if self.Level >= self.MaxLevel then
+			self.Exp = 0
+		end
+		
+		-- 경험치 획득 즉시 저장 (메이커 강제 종료 대비)
+		if self.userDataStorage then
+			self.userDataStorage:SetAsync("PlayerExp", tostring(self.Exp), nil)
+			self.userDataStorage:SetAsync("PlayerLevel", tostring(self.Level), nil)
+		end
+		
+		-- UI 동기화
+		self:SyncStatToClient(self.Level, self.Exp)
+		
+		if isLevelUp then
+			_UIToast:ShowMessage("레벨업!")
+		end
 	end
 
 	@ExecSpace("Client")
-	method void ShowLevelUpToast()
-		_UIToast:ShowMessage("레벨업!")
+	method void SyncStatToClient(integer level, integer exp)
+		local updateStatUI = function()
+			-- 레벨 텍스트 UI 업데이트
+			local levelUI = _EntityService:GetEntityByPath("/ui/DefaultGroup/UIMyInfo/Text_name")
+			if isvalid(levelUI) and levelUI.TextComponent then
+				levelUI.TextComponent.Text = "Level " .. tostring(level)
+			end
+			
+			-- 경험치 바 슬라이더 및 텍스트 업데이트
+			local hpBar = _EntityService:GetEntityByPath("/ui/DefaultGroup/UIMyInfo/HP_bar")
+			if isvalid(hpBar) and hpBar.SliderComponent then
+				local uiText = hpBar:GetChildByName("UIText")
+				local reqExp = self:GetReqExp(level)
+				
+				if level >= self.MaxLevel then
+					hpBar.SliderComponent.Value = 1
+					if isvalid(uiText) and uiText.TextComponent then uiText.TextComponent.Text = "MAX" end
+				else
+					hpBar.SliderComponent.Value = exp / reqExp
+					if isvalid(uiText) and uiText.TextComponent then uiText.TextComponent.Text = tostring(exp) .. " / " .. tostring(reqExp) end
+				end
+			end
+		end
+		
+		updateStatUI()
+		
+		-- 접속 직후 클라이언트 UI가 늦게 켜지는 경우를 대비해 0.5초 뒤 한 번 더 동기화
+		_TimerService:SetTimerOnce(updateStatUI, 0.5)
 	end
 
-	@ExecSpace("ClientOnly")
-	method void OnBeginPlay()
-		-- 시작할 때 UI 초기화
-		self:UpdateStatsUI(self.level, self.exp, self:GetRequiredExp(), self.maxLevel)
+	@ExecSpace("Server")
+	method void ResetStat()
+		self.Level = 1
+		self.Exp = 0
+		
+		if self.userDataStorage then
+			self.userDataStorage:SetAsync("PlayerLevel", tostring(self.Level), nil)
+			self.userDataStorage:SetAsync("PlayerExp", tostring(self.Exp), nil)
+		end
+		
+		-- UI 동기화
+		self:SyncStatToClient(self.Level, self.Exp)
+		log("[PlayerStat] 레벨과 경험치가 초기화되었습니다.")
 	end
+
+	@ExecSpace("ServerOnly")
+	@EventSender("Service", "UserService")
+	handler HandleUserLeaveEvent(UserLeaveEvent event)
+		if self.Entity.PlayerComponent.UserId ~= event.UserId then return end
+		
+		-- 게임 종료 시 확실하게 동기식으로 데이터 저장
+		if self.userDataStorage then
+			self.userDataStorage:SetAndWait("PlayerLevel", tostring(self.Level))
+			self.userDataStorage:SetAndWait("PlayerExp", tostring(self.Exp))
+		end
+	end
+
 end
