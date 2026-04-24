@@ -15,22 +15,41 @@ script LiteInventory extends Component
 		local errorCode, itemData = userDataStorage:GetAndWait("ItemData")
 		
 		if errorCode ~= 0 then
-			log(errorCode)
+			log_error("[LiteInventory] 인벤토리 데이터 로드 실패. 에러 코드: " .. tostring(errorCode))
 			return
 		end
 		
 		if itemData ~= nil and itemData ~= "" then
+			log("[LiteInventory] [1/4] 저장소에서 데이터 로딩 완료. Raw Data: " .. itemData)
 			local itemArr = _UtilLogic:Split(itemData, ",")
 			for i, v in ipairs(itemArr) do
 				self._T.inventoryData[i] = tonumber(v) or 0
 			end
+		else
+			log("[LiteInventory] [1/4] 저장소에 저장된 데이터가 없습니다. (신규 유저)")
 		end
 		
 		self._T.userDataStorage = userDataStorage
 		self.IsInitialized = true
 		
-		-- 클라이언트(UI)와 동기화
-		self:SyncInitToClient(_HttpService:JSONEncode(self._T.inventoryData))
+		-- 클라이언트(UI)와 동기화 (서버에서 아이템 정보를 구성하여 직접 전달)
+		local items = {}
+		for i, count in ipairs(self._T.inventoryData) do
+			if count > 0 then
+				local info = _Data:GetItem(i)
+				if info then
+					table.insert(items, {
+						GUID = tostring(i),
+						IconRUID = info.IconRUID,
+						ItemCount = count,
+						ItemName = info.Name
+					})
+				end
+			end
+		end
+		
+		log("[LiteInventory] [2/4] 클라이언트로 보낼 아이템 테이블 구성 완료. 전송할 아이템 종류: " .. tostring(#items) .. "개")
+		self:SyncInitToClient(_HttpService:JSONEncode(items))
 		
 		local saveInventory = function()
 			local dataConcatString = table.concat(self._T.inventoryData, ",")
@@ -44,23 +63,10 @@ script LiteInventory extends Component
 
 	@ExecSpace("Client")
 	method void SyncInitToClient(string jsonStr)
-		local success, counts = pcall(function() return _HttpService:JSONDecode(jsonStr) end)
-		if not success then return end
+		log("[LiteInventory-Client] [3/4] 서버로부터 초기화 데이터를 수신 완료. UI 갱신 이벤트를 발생시킵니다.")
 		
-		local items = {}
-		for i, count in ipairs(counts) do
-			if count > 0 then
-				local info = _Data:GetItem(i)
-				if info then
-					table.insert(items, {
-						GUID = tostring(i),
-						IconRUID = info.IconRUID,
-						ItemCount = count,
-						ItemName = info.Name
-					})
-				end
-			end
-		end
+		local success, items = pcall(function() return _HttpService:JSONDecode(jsonStr) end)
+		if not success or type(items) ~= "table" then return end
 		
 		local initEvent = InventoryItemInitEvent()
 		initEvent.Items = items
@@ -84,20 +90,22 @@ script LiteInventory extends Component
 		
 		self._T.inventoryData[itemIndex] = amountResult
 		
-		self:SyncModifyToClient(itemIndex, amountResult)
+		local info = _Data:GetItem(itemIndex)
+		if info then
+			local item = {
+				GUID = tostring(itemIndex),
+				IconRUID = info.IconRUID,
+				ItemCount = amountResult,
+				ItemName = info.Name
+			}
+			self:SyncModifyToClient(_HttpService:JSONEncode(item))
+		end
 	end
 
 	@ExecSpace("Client")
-	method void SyncModifyToClient(number itemIndex, number amountResult)
-		local info = _Data:GetItem(itemIndex)
-		if not info then return end
-		
-		local item = {
-			GUID = tostring(itemIndex),
-			IconRUID = info.IconRUID,
-			ItemCount = amountResult,
-			ItemName = info.Name
-		}
+	method void SyncModifyToClient(string jsonStr)
+		local success, item = pcall(function() return _HttpService:JSONDecode(jsonStr) end)
+		if not success or type(item) ~= "table" then return end
 		
 		local ev = InventoryItemModifiedEvent()
 		ev.Items = {item}
@@ -113,7 +121,16 @@ script LiteInventory extends Component
 		
 		self._T.inventoryData[itemIndex] = 0
 		
-		self:SyncModifyToClient(itemIndex, 0)
+		local info = _Data:GetItem(itemIndex)
+		if info then
+			local item = {
+				GUID = tostring(itemIndex),
+				IconRUID = info.IconRUID,
+				ItemCount = 0,
+				ItemName = info.Name
+			}
+			self:SyncModifyToClient(_HttpService:JSONEncode(item))
+		end
 	end
 
 	@ExecSpace("ServerOnly")

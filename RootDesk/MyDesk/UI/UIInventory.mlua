@@ -9,6 +9,8 @@ script UIInventory extends Component
 
 	property string inventoryBtnPath = "/ui/DefaultGroup/RPGButtons/btn_inventory"
 
+	property Entity inventoryPanel = nil
+
 	@ExecSpace("ClientOnly")
 	method void OnBeginPlay()
 		self.SlotItems = {}
@@ -17,11 +19,14 @@ script UIInventory extends Component
 		self.itemUI:SetEnable(false)
 		self.scrollView = _EntityService:GetEntityByPath(self.Entity.Path .. "/InventoryPanel/Inventory_ScrollView")
 		
+		self.inventoryPanel = _EntityService:GetEntityByPath(self.Entity.Path .. "/InventoryPanel")
+		if isvalid(self.inventoryPanel) then self.inventoryPanel.Enable = false end -- 시작할 때는 화면에서만 가려둠
+		
 		-- add UI Preset/Buttons
 		local inventoryButton = _EntityService:GetEntityByPath(self.inventoryBtnPath)
 		if inventoryButton ~= nil then
 			local openFunc = function()
-				self.Entity.Enable = true
+				if isvalid(self.inventoryPanel) then self.inventoryPanel.Enable = true end
 			end
 			if inventoryButton.ButtonComponent == nil then
 				inventoryButton:AddComponent("MOD.Core.ButtonComponent")
@@ -32,18 +37,34 @@ script UIInventory extends Component
 		
 		local closeButton = _EntityService:GetEntityByPath(self.Entity.Path .. "/InventoryPanel/CloseButton")
 		local closeFunc = function()
-			self.Entity.Enable = false
+			if isvalid(self.inventoryPanel) then self.inventoryPanel.Enable = false end
 		end
 		
 		closeButton:ConnectEvent(ButtonClickEvent, closeFunc)
 	end
 
+	@ExecSpace("ClientOnly")
 	@EventSender("LocalPlayer")
 	handler HandleInventoryItemInitEvent(InventoryItemInitEvent event)
 		-- Parameters
-		local Entity = event.Entity
 		local Items = event.Items
 		--------------------------------------------------------
+
+		-- [테스트용] 이벤트를 통해 받은 초기화 데이터를 무시하고 뿔버섯의 갓 더미 데이터로 덮어씌웁니다.
+		Items = {
+			{ GUID = "1", ItemName = "뿔버섯의 갓", ItemCount = 1, IconRUID = "87331f7901444319ad71947d99077e90" }
+		}
+
+		if Items == nil then
+			log_error("[InitEvent] Items 데이터가 nil입니다! Workspace의 Event에서 Items(any 타입) 프로퍼티가 선언되었는지 확인하세요.")
+			return
+		end
+		
+		-- 최초 접속 시 빈 인벤토리면 0개가 찍히는 것이 정상입니다.
+		local count = 0
+		for _ in pairs(Items) do count = count + 1 end
+		log("[InitEvent] 인벤토리 초기화 완료. 전달받은 아이템 개수: " .. tostring(count))
+		log("[UIInventory] [4/4] [InitEvent] 인벤토리 초기화 UI 렌더링 시작. 전달받은 아이템 종류 수: " .. tostring(count))
 		
 		-- 기존 슬롯 초기화
 		if type(self.SlotItems) == "table" then
@@ -55,6 +76,7 @@ script UIInventory extends Component
 		
 		for i, item in pairs(Items) do
 			if item.ItemCount > 0 then
+				log(string.format("  -> [UI 슬롯 생성] ID: %s | 이름: %s | 수량: %d", item.GUID, tostring(item.ItemName), item.ItemCount))
 				local itemslot = _SpawnService:SpawnByEntity(self.itemUI, "Item", Vector3.zero, self.scrollView)
 				itemslot.Enable = true
 				itemslot.UIItemSlot:SetData(item)
@@ -63,6 +85,7 @@ script UIInventory extends Component
 		end
 	end
 
+	@ExecSpace("ClientOnly")
 	@EventSender("LocalPlayer")
 	handler HandleInventoryItemAddedEvent(InventoryItemAddedEvent event)
 		-- Parameters
@@ -81,6 +104,7 @@ script UIInventory extends Component
 		end
 	end
 
+	@ExecSpace("ClientOnly")
 	@EventSender("LocalPlayer")
 	handler HandleInventoryItemRemovedEvent(InventoryItemRemovedEvent event)
 		-- Parameters
@@ -97,12 +121,20 @@ script UIInventory extends Component
 		end
 	end
 
+	@ExecSpace("ClientOnly")
 	@EventSender("LocalPlayer")
 	handler HandleInventoryItemModifiedEvent(InventoryItemModifiedEvent event)
 		-- Parameters
-		local Entity = event.Entity
 		local Items = event.Items
 		--------------------------------------------------------
+
+		if Items == nil then
+			log_error("[ModifiedEvent] Items 데이터가 nil입니다! Workspace의 Event 설정을 확인하세요.")
+			return
+		end
+		
+		-- 0.5초 뒤 뿔버섯 갓이 지급될 때 이곳에 1개가 찍혀야 합니다.
+		log("[ModifiedEvent] 아이템 변경(지급) 이벤트 수신됨!")
 		
 		if type(self.SlotItems) ~= "table" then self.SlotItems = {} end
 		for	i,item in pairs(Items) do
