@@ -11,8 +11,8 @@ script UIItemSlot extends Component
 		local imageEntity = self.Entity:GetChildByName("img_slot")
 		imageEntity.SpriteGUIRendererComponent.ImageRUID = item.IconRUID
 		
-		imageEntity:GetChildByName("item_count").TextComponent.Text = tostring(item.ItemCount)
-		self.itemGUID = item.GUID
+		imageEntity:GetChildByName("item_count").TextComponent.Text = tostring(math.floor(item.ItemCount))
+		self.itemGUID = tostring(item.GUID)
 	end
 
 	@EventSender("Self")

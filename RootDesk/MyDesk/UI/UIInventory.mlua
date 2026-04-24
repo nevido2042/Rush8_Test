@@ -75,48 +75,14 @@ script UIInventory extends Component
 		self.SlotItems = {}
 		
 		for i, item in pairs(Items) do
+			item.ItemCount = math.floor(item.ItemCount)
 			if item.ItemCount > 0 then
-				log(string.format("  -> [UI 슬롯 생성] ID: %s | 이름: %s | 수량: %d", item.GUID, tostring(item.ItemName), item.ItemCount))
+				local guid = tostring(item.GUID)
+				log(string.format("  -> [UI 슬롯 생성] ID: %s | 이름: %s | 수량: %d", guid, tostring(item.ItemName), item.ItemCount))
 				local itemslot = _SpawnService:SpawnByEntity(self.itemUI, "Item", Vector3.zero, self.scrollView)
 				itemslot.Enable = true
 				itemslot.UIItemSlot:SetData(item)
-				self.SlotItems[item.GUID] = itemslot
-			end
-		end
-	end
-
-	@ExecSpace("ClientOnly")
-	@EventSender("LocalPlayer")
-	handler HandleInventoryItemAddedEvent(InventoryItemAddedEvent event)
-		-- Parameters
-		local Entity = event.Entity
-		local Items = event.Items
-		--------------------------------------------------------
-		
-		if type(self.SlotItems) ~= "table" then self.SlotItems = {} end
-		for i, item in pairs(Items) do
-			if self.SlotItems[item.GUID] == nil then
-				local itemslot = _SpawnService:SpawnByEntity(self.itemUI, "Item", Vector3.zero, self.scrollView)
-				itemslot.Enable = true
-				itemslot.UIItemSlot:SetData(item)
-				self.SlotItems[item.GUID] = itemslot
-			end
-		end
-	end
-
-	@ExecSpace("ClientOnly")
-	@EventSender("LocalPlayer")
-	handler HandleInventoryItemRemovedEvent(InventoryItemRemovedEvent event)
-		-- Parameters
-		local Entity = event.Entity
-		local Items = event.Items
-		--------------------------------------------------------
-		
-		if type(self.SlotItems) ~= "table" then return end
-		for	i,item in pairs(Items) do
-			if self.SlotItems[item.GUID] ~= nil then
-				self.SlotItems[item.GUID]:Destroy()
-				self.SlotItems[item.GUID] = nil
+				self.SlotItems[guid] = itemslot
 			end
 		end
 	end
@@ -133,24 +99,23 @@ script UIInventory extends Component
 			return
 		end
 		
-		-- 0.5초 뒤 뿔버섯 갓이 지급될 때 이곳에 1개가 찍혀야 합니다.
-		log("[ModifiedEvent] 아이템 변경(지급) 이벤트 수신됨!")
-		
 		if type(self.SlotItems) ~= "table" then self.SlotItems = {} end
 		for	i,item in pairs(Items) do
+			item.ItemCount = math.floor(item.ItemCount)
+			local guid = tostring(item.GUID)
 			if item.ItemCount <= 0 then
-				if self.SlotItems[item.GUID] ~= nil then
-					self.SlotItems[item.GUID]:Destroy()
-					self.SlotItems[item.GUID] = nil
+				if self.SlotItems[guid] ~= nil then
+					self.SlotItems[guid]:Destroy()
+					self.SlotItems[guid] = nil
 				end
 			else
-				if self.SlotItems[item.GUID] ~= nil then
-					self.SlotItems[item.GUID].UIItemSlot:SetData(item)
+				if self.SlotItems[guid] ~= nil then
+					self.SlotItems[guid].UIItemSlot:SetData(item)
 				else
 					local itemslot = _SpawnService:SpawnByEntity(self.itemUI, "Item", Vector3.zero, self.scrollView)
 					itemslot.Enable = true
 					itemslot.UIItemSlot:SetData(item)
-					self.SlotItems[item.GUID] = itemslot
+					self.SlotItems[guid] = itemslot
 				end
 			end
 		end

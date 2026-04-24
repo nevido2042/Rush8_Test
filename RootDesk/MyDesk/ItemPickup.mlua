@@ -3,13 +3,34 @@ script ItemPickup extends Component
 
 	property number ItemId = 1
 	property number Amount = 1
+	property boolean IsPickupable = false
+
+	@ExecSpace("ServerOnly")
+	method void OnBeginPlay()
+		-- 아이템 생성 후 1초 뒤에 획득 가능 상태로 변경
+		_TimerService:SetTimerOnce(function()
+			self.IsPickupable = true
+		end, 1.0)
+	end
 
 	@ExecSpace("ServerOnly")
 	@EventSender("Self")
 	handler HandleTriggerEnterEvent(TriggerEnterEvent event)
+		-- 아직 획득 가능 상태가 아니면 무시
+		if not self.IsPickupable then return end
+		
 		local target = event.TriggerBodyEntity
 		
-		if isvalid(target) and target.LiteInventory then
+		-- 충돌한 대상이 플레이어(PlayerComponent)이고 인벤토리를 가지고 있는지 확인
+		if isvalid(target) and target.PlayerComponent and target.LiteInventory then
+			-- 중복 획득을 방지하기 위해 즉시 획득 불가능 상태로 잠금
+			self.IsPickupable = false
+			-- 물리 충돌과 추가 이벤트 발생을 즉시 차단하기 위해 엔티티 자체를 비활성화
+			self.Entity.Enable = false
+			
+			-- 디버그용 로그 (어떤 아이템 엔티티가 실행되었는지 고유 이름 확인)
+			log("[ItemPickup] 획득 처리 완료! 삭제된 엔티티 이름: " .. tostring(self.Entity.Id))
+
 			target.LiteInventory:ModifyItem(self.ItemId, self.Amount)
 			self.Entity:Destroy()
 		end
