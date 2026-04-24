@@ -1,8 +1,8 @@
 @Component
 script ItemPickup extends Component
 
-	property number ItemId = 1
-	property number Amount = 1
+	property integer ItemId = 1
+	property integer Amount = 1
 	property boolean IsPickupable = false
 
 	@ExecSpace("ServerOnly")

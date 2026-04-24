@@ -5,6 +5,8 @@ script UIItemSlot extends Component
 
 	property string itemGUID = ""
 
+	property integer _clickCount = 0
+
 	method void SetData(any item)
 		self.item = item
 		
@@ -25,7 +27,16 @@ script UIItemSlot extends Component
 			return
 		end
 		
-		-- TODO: item logic
+		self._clickCount = self._clickCount + 1
+		
+		if self._clickCount == 1 then
+			_TimerService:SetTimerOnce(function()
+				self._clickCount = 0
+			end, 0.3)
+		elseif self._clickCount == 2 then
+			self._clickCount = 0
+			_UserService.LocalPlayer.LiteInventory:SellItemForMeso(self.itemGUID)
+		end
 	end
 
 end

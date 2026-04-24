@@ -3,6 +3,8 @@ script LiteInventory extends Component
 
 	property boolean IsInitialized = false
 
+	property integer Meso = 0
+
 	@ExecSpace("ServerOnly")
 	method void OnBeginPlay()
 		-- inventoryData에 UserItemDataSet를 불러옴
@@ -29,6 +31,12 @@ script LiteInventory extends Component
 			log("[LiteInventory] [1/4] 저장소에 저장된 데이터가 없습니다. (신규 유저)")
 		end
 		
+		-- 메소(Meso) 데이터 로딩
+		local errorCode2, mesoData = userDataStorage:GetAndWait("MesoData")
+		if errorCode2 == 0 and mesoData ~= nil and mesoData ~= "" then
+			self.Meso = tonumber(mesoData) or 0
+		end
+
 		self._T.userDataStorage = userDataStorage
 		self.IsInitialized = true
 		
@@ -50,10 +58,12 @@ script LiteInventory extends Component
 		
 		log("[LiteInventory] [2/4] 클라이언트로 보낼 아이템 테이블 구성 완료. 전송할 아이템 종류: " .. tostring(#items) .. "개")
 		self:SyncInitToClient(_HttpService:JSONEncode(items))
+		self:SyncMesoToClient(self.Meso)
 		
 		local saveInventory = function()
 			local dataConcatString = table.concat(self._T.inventoryData, ",")
 			self._T.userDataStorage:SetAsync("ItemData", dataConcatString, function(errorCode) log("저장 완료") end)
+			self._T.userDataStorage:SetAsync("MesoData", tostring(self.Meso), function(ec) end)
 			log("저장 중...")
 		end
 		
@@ -103,6 +113,12 @@ script LiteInventory extends Component
 			}
 			self:SyncModifyToClient(_HttpService:JSONEncode(item))
 		end
+		
+		-- 아이템 변경 즉시 저장 (메이커 강제 종료 대비)
+		if self._T.userDataStorage then
+			local dataConcatString = table.concat(self._T.inventoryData, ",")
+			self._T.userDataStorage:SetAsync("ItemData", dataConcatString, nil)
+		end
 	end
 
 	@ExecSpace("Client")
@@ -137,6 +153,12 @@ script LiteInventory extends Component
 			}
 			self:SyncModifyToClient(_HttpService:JSONEncode(item))
 		end
+		
+		-- 아이템 삭제 즉시 저장
+		if self._T.userDataStorage then
+			local dataConcatString = table.concat(self._T.inventoryData, ",")
+			self._T.userDataStorage:SetAsync("ItemData", dataConcatString, nil)
+		end
 	end
 
 	@ExecSpace("ServerOnly")
@@ -153,6 +175,7 @@ script LiteInventory extends Component
 		if self._T.userDataStorage then
 			local dataConcatString = table.concat(self._T.inventoryData, ",")
 			self._T.userDataStorage:SetAndWait("ItemData", dataConcatString)
+			self._T.userDataStorage:SetAndWait("MesoData", tostring(self.Meso))
 		end
 	end
 
@@ -182,9 +205,67 @@ script LiteInventory extends Component
 		if self._T.userDataStorage then
 			local dataConcatString = table.concat(self._T.inventoryData, ",")
 			self._T.userDataStorage:SetAsync("ItemData", dataConcatString, function(errorCode) log("[LiteInventory] 인벤토리 데이터가 완전히 초기화되었습니다.") end)
+			self._T.userDataStorage:SetAsync("MesoData", "0", function(ec) end)
 		end
 		
+		self.Meso = 0
+		self:SyncMesoToClient(0)
+		
 		self:SyncInitToClient(_HttpService:JSONEncode({}))
+	end
+
+	@ExecSpace("Server")
+	method void SellItemForMeso(string itemGuid)
+		local itemId = tonumber(itemGuid)
+		if not itemId then return end
+		
+		local currentAmount = self._T.inventoryData[itemId] or 0
+		if currentAmount <= 0 then return end
+		
+		local info = _Data:GetItem(itemId)
+		if not info then return end
+		
+		local mesoGain = 0
+		if info.Name == "뿔버섯의 갓" then
+			mesoGain = 100
+		elseif info.Name == "죽은 자의 부적" then
+			mesoGain = 150
+		else
+			mesoGain = 10 -- 기타 아이템 기본 판매가
+		end
+		
+		if mesoGain > 0 then
+			self:ModifyItem(itemId, -1)
+			self.Meso = self.Meso + mesoGain
+			self:SyncMesoToClient(self.Meso)
+			
+			-- 메소 변동 즉시 저장 (메이커 강제 종료 대비)
+			if self._T.userDataStorage then
+				self._T.userDataStorage:SetAsync("MesoData", tostring(self.Meso), nil)
+			end
+		end
+	end
+
+	@ExecSpace("Client")
+	method void SyncMesoToClient(integer meso)
+		local updateMesoUI = function()
+			local coinUI = _EntityService:GetEntityByPath("/ui/DefaultGroup/Inventory/InventoryPanel/CoinPanel/coin_count")
+			if isvalid(coinUI) and coinUI.TextComponent then
+				-- 숫자를 1,000 단위 콤마(,)가 포함된 문자열로 포맷팅
+				local formatted = tostring(meso)
+				local k
+				while true do
+					formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
+					if k == 0 then break end
+				end
+				coinUI.TextComponent.Text = formatted
+			end
+		end
+		
+		updateMesoUI()
+		
+		-- 접속 직후 클라이언트 UI가 늦게 켜지는 경우를 대비해 0.5초 뒤 한 번 더 동기화
+		_TimerService:SetTimerOnce(updateMesoUI, 0.5)
 	end
 
 end
