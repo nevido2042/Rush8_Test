@@ -107,7 +107,7 @@
             "$type": "MODNativeType",
             "type": "System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
           },
-          "Value": "87331f7901444319ad71947d99077e90"
+          "Value": "228aed2577c34bf3882922133b0e9783"
         },
         {
           "TargetType": "MOD.Core.SpriteRendererComponent",
