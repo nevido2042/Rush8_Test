@@ -20,7 +20,9 @@
       "Components": [
         "MOD.Core.TransformComponent",
         "MOD.Core.SpriteRendererComponent",
-        "MOD.Core.RigidbodyComponent"
+        "MOD.Core.RigidbodyComponent",
+        "script.ItemPickup",
+        "MOD.Core.TriggerComponent"
       ],
       "Properties": [],
       "Values": [
@@ -153,6 +155,103 @@
             "type": "System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
           },
           "Value": 10
+        },
+        {
+          "TargetType": "MOD.Core.RigidbodyComponent",
+          "Name": "MoveVelocity",
+          "ValueType": {
+            "$type": "MODNativeType",
+            "type": "MOD.Core.MODVector2, MOD.Core, Version=26.3.0.0, Culture=neutral, PublicKeyToken=null"
+          },
+          "Value": {
+            "$type": "MOD.Core.MODVector2, MOD.Core",
+            "x": 0.0,
+            "y": 0.0
+          }
+        },
+        {
+          "TargetType": "MOD.Core.RigidbodyComponent",
+          "Name": "RealMoveVelocity",
+          "ValueType": {
+            "$type": "MODNativeType",
+            "type": "MOD.Core.MODVector2, MOD.Core, Version=26.3.0.0, Culture=neutral, PublicKeyToken=null"
+          },
+          "Value": {
+            "$type": "MOD.Core.MODVector2, MOD.Core",
+            "x": 0.0,
+            "y": 0.0
+          }
+        },
+        {
+          "TargetType": "MOD.Core.RigidbodyComponent",
+          "Name": "Enable",
+          "ValueType": {
+            "$type": "MODNativeType",
+            "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+          },
+          "Value": true
+        },
+        {
+          "TargetType": "script.ItemPickup",
+          "Name": "Enable",
+          "ValueType": {
+            "$type": "MODNativeType",
+            "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+          },
+          "Value": true
+        },
+        {
+          "TargetType": "MOD.Core.TriggerComponent",
+          "Name": "BoxSize",
+          "ValueType": {
+            "$type": "MODNativeType",
+            "type": "MOD.Core.MODVector2, MOD.Core, Version=26.3.0.0, Culture=neutral, PublicKeyToken=null"
+          },
+          "Value": {
+            "$type": "MOD.Core.MODVector2, MOD.Core",
+            "x": 0.27,
+            "y": 0.29
+          }
+        },
+        {
+          "TargetType": "MOD.Core.TriggerComponent",
+          "Name": "ColliderOffset",
+          "ValueType": {
+            "$type": "MODNativeType",
+            "type": "MOD.Core.MODVector2, MOD.Core, Version=26.3.0.0, Culture=neutral, PublicKeyToken=null"
+          },
+          "Value": {
+            "$type": "MOD.Core.MODVector2, MOD.Core",
+            "x": -0.004999995,
+            "y": 0.004999995
+          }
+        },
+        {
+          "TargetType": "MOD.Core.TriggerComponent",
+          "Name": "IsLegacy",
+          "ValueType": {
+            "$type": "MODNativeType",
+            "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+          },
+          "Value": false
+        },
+        {
+          "TargetType": "MOD.Core.TriggerComponent",
+          "Name": "Enable",
+          "ValueType": {
+            "$type": "MODNativeType",
+            "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+          },
+          "Value": true
+        },
+        {
+          "TargetType": "script.ItemPickup",
+          "Name": "ItemId",
+          "ValueType": {
+            "$type": "MODNativeType",
+            "type": "System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+          },
+          "Value": 2.0
         }
       ],
       "EventLinks": [],

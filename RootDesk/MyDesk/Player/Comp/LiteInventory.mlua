@@ -165,4 +165,20 @@ script LiteInventory extends Component
 		log("================================")
 	end
 
+	@ExecSpace("Server")
+	method void ResetInventory()
+		if not self._T.inventoryData then return end
+		
+		for i = 1, _Data.ItemTableRowCount do
+			self._T.inventoryData[i] = 0
+		end
+		
+		if self._T.userDataStorage then
+			local dataConcatString = table.concat(self._T.inventoryData, ",")
+			self._T.userDataStorage:SetAsync("ItemData", dataConcatString, function(errorCode) log("[LiteInventory] 인벤토리 데이터가 완전히 초기화되었습니다.") end)
+		end
+		
+		self:SyncInitToClient(_HttpService:JSONEncode({}))
+	end
+
 end

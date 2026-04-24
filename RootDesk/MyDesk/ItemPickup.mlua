@@ -1,0 +1,18 @@
+@Component
+script ItemPickup extends Component
+
+	property number ItemId = 1
+	property number Amount = 1
+
+	@ExecSpace("ServerOnly")
+	@EventSender("Self")
+	handler HandleTriggerEnterEvent(TriggerEnterEvent event)
+		local target = event.TriggerBodyEntity
+		
+		if isvalid(target) and target.LiteInventory then
+			target.LiteInventory:ModifyItem(self.ItemId, self.Amount)
+			self.Entity:Destroy()
+		end
+	end
+
+end

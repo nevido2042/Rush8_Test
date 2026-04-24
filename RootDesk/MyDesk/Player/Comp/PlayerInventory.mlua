@@ -5,22 +5,22 @@ script PlayerInventory extends Component
 
 	@ExecSpace("ServerOnly")
 	method void OnBeginPlay()
-		local timerId = 0
-		local checkAndGiveItem = function()
-			if isvalid(self.Entity) and self.Entity.LiteInventory then
-				-- LiteInventory의 데이터 불러오기가 완전히 끝났는지 확인 (IsInitialized)
-				if self.Entity.LiteInventory.IsInitialized then
-					log("인벤토리 로딩 완료! 뿔버섯의 갓 지급")
-					self.Entity.LiteInventory:ModifyItem(1, 1)
-					_TimerService:ClearTimer(timerId)
-				end
-			else
-				_TimerService:ClearTimer(timerId)
-			end
-		end
+		-- local timerId = 0
+		-- local checkAndGiveItem = function()
+		-- 	if isvalid(self.Entity) and self.Entity.LiteInventory then
+		-- 		-- LiteInventory의 데이터 불러오기가 완전히 끝났는지 확인 (IsInitialized)
+		-- 		if self.Entity.LiteInventory.IsInitialized then
+		-- 			log("인벤토리 로딩 완료! 뿔버섯의 갓 지급")
+		-- 			self.Entity.LiteInventory:ModifyItem(1, 1)
+		-- 			_TimerService:ClearTimer(timerId)
+		-- 		end
+		-- 	else
+		-- 		_TimerService:ClearTimer(timerId)
+		-- 	end
+		-- end
 		
-		-- 0.5초마다 인벤토리 로딩이 끝났는지 반복해서 확인하고, 끝나면 아이템 지급 후 타이머를 종료합니다.
-		timerId = _TimerService:SetTimerRepeat(checkAndGiveItem, 0.5, 1.0)
+		-- -- 0.5초마다 인벤토리 로딩이 끝났는지 반복해서 확인하고, 끝나면 아이템 지급 후 타이머를 종료합니다.
+		-- timerId = _TimerService:SetTimerRepeat(checkAndGiveItem, 0.5, 1.0)
 	end
 
 	@ExecSpace("ClientOnly")
@@ -28,6 +28,13 @@ script PlayerInventory extends Component
 	handler HandleKeyDownEvent(KeyDownEvent event)
 		-- 본인의 캐릭터(LocalPlayer)에서만 입력 이벤트를 처리하도록 제한
 		if self.Entity ~= _UserService.LocalPlayer then return end
+
+		-- [테스트용] O 키가 눌렸을 때 인벤토리 데이터 초기화
+		if event.key == KeyboardKey.O then
+			if isvalid(self.Entity) and self.Entity.LiteInventory then
+				self.Entity.LiteInventory:ResetInventory()
+			end
+		end
 
 		-- I 키가 눌렸을 때 동작
 		if event.key == KeyboardKey.I then
